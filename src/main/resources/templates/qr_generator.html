@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>QR 코드 생성기</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input[type="text"] { width: 400px; padding: 10px; }
+        button { padding: 10px 20px; cursor: pointer; }
+        #qr-code-image { margin-top: 30px; }
+    </style>
+</head>
+<body>
+<h1>QR 코드 생성기</h1>
+<p>QR 코드로 만들고 싶은 URL을 입력하세요.</p>
+<div>
+    <input type="text" id="urlInput" placeholder="https://example.com" />
+    <button onclick="generateQrCode()">생성하기</button>
+</div>
+<div id="qr-code-image">
+</div>
+
+<script>
+    function generateQrCode() {
+        const url = document.getElementById('urlInput').value;
+        if (url) {
+            const qrImageDiv = document.getElementById('qr-code-image');
+            qrImageDiv.innerHTML = `<img src="/qr/generate?url=${encodeURIComponent(url)}" alt="QR Code" />`;
+        } else {
+            alert('URL을 입력해주세요!');
+        }
+    }
+</script>
+</body>
+</html>

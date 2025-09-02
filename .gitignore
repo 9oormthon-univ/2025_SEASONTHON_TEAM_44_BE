@@ -1,0 +1,44 @@
+### Gradle ###
+.gradle/
+/build/
+!/gradle/wrapper/gradle-wrapper.jar
+/out/
+.pnpm-store/
+
+# Generated files
+/bin/
+/target/
+.sts4-cache/
+.classpath
+.project
+.settings/
+.factorypath
+
+# IDE-specific
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# Local files
+/logs/
+*.log
+*.jar
+*.war
+*.class
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
+*~
+
+src/main/resources/application.yaml
