@@ -23,6 +23,6 @@ public class Stamp extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 }

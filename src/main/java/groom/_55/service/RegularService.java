@@ -1,9 +1,7 @@
 package groom._55.service;
 
 
-import groom._55.dto.CouponResponse;
-import groom._55.dto.RegularMainResponse;
-import groom._55.dto.RegularStoreDetail;
+import groom._55.dto.*;
 import groom._55.entity.*;
 import groom._55.repository.*;
 import jakarta.transaction.Transactional;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -142,7 +141,7 @@ public void readNoti(Long userId, Long notiId) {
                     CouponResponse.builder()
                             .storeId(stamp.getStore().getId())
                             .storeName(stamp.getStore().getName())
-                            .storeImage(stamp.getStore().getImages())
+                            .storeImage(stamp.getStore().getImageKey())
                             .couponCount(couponCount)
                             .build()
             );
@@ -168,5 +167,39 @@ public void readNoti(Long userId, Long notiId) {
         stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
         stampLogRepository.save(log);
         stampRepository.save(stamp);
+    }
+
+    public MyPageResponse getMyPage(Long userId) {
+        // 1) 단골 가게 수
+        int storeCount = storeRepository.countByUserId(userId);
+
+        // 2) 보유 스탬프 수 (단순 합계)
+        List<Stamp> stamps = stampRepository.findByUserId(userId);
+        int totalStamp = stamps.stream()
+                .mapToInt(stamp -> stamp.getTotalStamp())
+                .sum();
+
+        // 3) 보유 쿠폰 수 (가게별로 10 단위로 나눈 후 합산)
+        int couponCount = stamps.stream()
+                .mapToInt(stamp -> stamp.getAvailableStamp() / 10)
+                .sum();
+
+        // 4) 최근 방문한 가게 3개
+        List<StampLog> logs = stampLogRepository.findTop5ByStamp_User_IdOrderByCreatedAtDesc(userId);
+        List<RecentStoreDto> recentStores = logs.stream()
+                .map(log -> RecentStoreDto.builder()
+                        .storeId(log.getStore().getId())
+                        .storeName(log.getStore().getName())
+                        .storeImage(log.getStore().getImageKey())
+                        .build()
+                )
+                .collect(Collectors.toList());
+
+        return MyPageResponse.builder()
+                .storeCount(storeCount)
+                .totalStamp(totalStamp)
+                .couponCount(couponCount)
+                .recentStores(recentStores)
+                .build();
     }
 }
