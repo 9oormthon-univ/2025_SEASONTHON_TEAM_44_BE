@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RegularStoreDetail {
-    private Long id;
+    private Long notiId;
     private String name;
     private String phone;
     private String category;
@@ -19,9 +19,9 @@ public class RegularStoreDetail {
     private String recentNotiTitle; // 최근 공지사항 문자열 필드
     private String recentNotiContent;
 
-    public static RegularStoreDetail fromEntity(Store store, String notificationTitle, String notificationContent) {
+    public static RegularStoreDetail fromEntity(Store store, String notificationTitle, String notificationContent, Long notiId) {
         return RegularStoreDetail.builder()
-                .id(store.getId())
+                .notiId(notiId)
                 .name(store.getName())
                 .phone(store.getPhone())
                 .category(store.getCategory())

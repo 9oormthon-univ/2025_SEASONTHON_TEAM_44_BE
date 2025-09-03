@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 public class Noti extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
@@ -24,7 +24,7 @@ public class Noti extends BaseEntity {
     @Column
     private String content;
 
-    @OneToMany
+    @OneToMany(mappedBy = "NotiId")
     private List<NotiRead> NotiRead = new ArrayList<>();
 
     @ManyToOne
