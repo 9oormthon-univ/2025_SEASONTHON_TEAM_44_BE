@@ -1,6 +1,7 @@
 package groom._55.service;
 
 
+import groom._55.dto.RegularMainResponse;
 import groom._55.dto.RegularStoreDetail;
 import groom._55.entity.*;
 import groom._55.repository.*;
@@ -8,6 +9,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -48,7 +52,7 @@ public class RegularService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저와 스토어의 스탬프를 찾을 수 없습니다."));
 
         // 2. Stamp 엔티티의 useStamp와 totalStamp를 1씩 증가
-        stamp.setUseStamp(stamp.getUseStamp() + 1);
+        stamp.setAvailableStamp(stamp.getAvailableStamp() + 1);
         stamp.setTotalStamp(stamp.getTotalStamp() + 1);
         stampRepository.save(stamp); // 변경된 내용 저장
 
@@ -72,11 +76,57 @@ public void readNoti(Long userId, Long notiId) {
         // 2. NotiRead 엔티티 생성
         NotiRead notiRead = NotiRead.builder()
                 .user(user)
-                .Noti(noti) // 필드명 NotiId 그대로 사용
+                .noti(noti) // 필드명 NotiId 그대로 사용
                 .build();
 
         // 3. NotiRead 엔티티 저장
         notiReadRepository.save(notiRead);
+    }
+
+
+    public List<RegularMainResponse> getRegularStores(Long userId) {
+        List<Store> stores = storeRepository.findByUserId(userId);
+        for (Store store : stores) {
+            System.out.println(store.getName());
+        }
+        List<RegularMainResponse> result = new ArrayList<>();
+
+        for (Store store : stores) {
+            // 스탬프 정보 가져오기
+            Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, store.getId())
+                    .orElse(null);
+            System.out.println("스탬프 정보 출력");
+            System.out.println(stamp);
+
+            // 마지막 방문일 & 방문 횟수
+            var lastVisit = stamp != null ? stamp.getUpdatedAt() : null;
+            var totalVisits = stamp != null ? stamp.getTotalStamp() : 0;
+
+            // 새로운 알림 여부 체크
+            boolean hasNewNoti = false;
+            List<Noti> notis = notiRepository.findByStoreId(store.getId());
+            for (Noti noti : notis) {
+                if (!notiReadRepository.existsByUserIdAndNotiId(userId, noti.getId())) {
+                    hasNewNoti = true;
+                    break;
+                }
+            }
+
+            result.add(
+                    RegularMainResponse.builder()
+                            .storeId(store.getId())
+                            .storeName(store.getName())
+                            .category(store.getCategory())
+                            .address(store.getAddress())
+                            .phone(store.getPhone())
+                            .lastVisit(lastVisit)
+                            .totalVisits(totalVisits)
+                            .hasNewNoti(hasNewNoti)
+                            .build()
+            );
+        }
+
+        return result;
     }
 
 }

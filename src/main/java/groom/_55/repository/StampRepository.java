@@ -8,7 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface StampRepository extends JpaRepository<Stamp, Long> {
-
     Optional<Stamp> findByUserIdAndStoreId(Long userId, Long storeId);
-
 }
