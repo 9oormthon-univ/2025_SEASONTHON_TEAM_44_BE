@@ -1,10 +1,7 @@
 package groom._55.controller;
 
 
-import groom._55.dto.NotiReadRequest;
-import groom._55.dto.RegularMainResponse;
-import groom._55.dto.RegularStoreDetail;
-import groom._55.dto.StampRequest;
+import groom._55.dto.*;
 import groom._55.service.RegularService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -59,4 +56,17 @@ public class RegularController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/coupon")
+    public ResponseEntity<List<CouponResponse>> getCoupons() {
+        Long userId = 1L; // 추후 인증 로직으로 교체
+        List<CouponResponse> response = regularService.getCoupons(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/coupon/{stampId}")
+    public ResponseEntity<String> useCoupon(@PathVariable Long stampId) {
+        Long userId = 1L; // 추후 인증 로직으로 교체
+        regularService.useCoupon(userId, stampId);
+        return ResponseEntity.ok("쿠폰 사용 완료 (10 스탬프 차감)");
+    }
 }
