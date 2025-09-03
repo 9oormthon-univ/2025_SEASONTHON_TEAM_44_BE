@@ -1,4 +1,4 @@
-package groom._55.dto;
+package groom._55.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
