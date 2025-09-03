@@ -50,6 +50,7 @@ public class RegularService {
         // 1. Stamp 엔티티 조회
         Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, storeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저와 스토어의 스탬프를 찾을 수 없습니다."));
+        System.out.println("실행");
 
         // 2. Stamp 엔티티의 useStamp와 totalStamp를 1씩 증가
         stamp.setAvailableStamp(stamp.getAvailableStamp() + 1);
