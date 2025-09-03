@@ -1,6 +1,7 @@
 package groom._55.service;
 
 
+import groom._55.dto.CouponResponse;
 import groom._55.dto.RegularMainResponse;
 import groom._55.dto.RegularStoreDetail;
 import groom._55.entity.*;
@@ -129,4 +130,43 @@ public void readNoti(Long userId, Long notiId) {
         return result;
     }
 
+
+    public List<CouponResponse> getCoupons(Long userId) {
+        List<Stamp> stamps = stampRepository.findByUserId(userId);
+        List<CouponResponse> result = new ArrayList<>();
+
+        for (Stamp stamp : stamps) {
+            int couponCount = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0) / 10;
+
+            result.add(
+                    CouponResponse.builder()
+                            .storeId(stamp.getStore().getId())
+                            .storeName(stamp.getStore().getName())
+                            .storeImage(stamp.getStore().getImages())
+                            .couponCount(couponCount)
+                            .build()
+            );
+        }
+
+        return result;
+    }
+
+    @Transactional
+    public void useCoupon(Long userId, Long stampId) {
+        Stamp stamp = stampRepository.findByIdAndUserId(stampId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 쿠폰을 찾을 수 없습니다."));
+
+        if (stamp.getAvailableStamp() == null || stamp.getAvailableStamp() < 10) {
+            throw new IllegalStateException("스탬프가 부족하여 쿠폰을 사용할 수 없습니다.");
+        }
+
+        StampLog log = StampLog.builder()
+                        .stamp(stamp)
+                        .store(stamp.getStore())
+                        .build();
+
+        stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
+        stampLogRepository.save(log);
+        stampRepository.save(stamp);
+    }
 }
