@@ -1,4 +1,4 @@
-package groom._55.dto;
+package groom._55.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

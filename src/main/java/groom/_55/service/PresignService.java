@@ -1,8 +1,8 @@
 package groom._55.service;
 
-import groom._55.dto.PresignRequest;
-import groom._55.dto.PresignResponse;
-import groom._55.dto.UrlResponse;
+import groom._55.dto.request.PresignRequest;
+import groom._55.dto.response.PresignResponse;
+import groom._55.dto.response.UrlResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

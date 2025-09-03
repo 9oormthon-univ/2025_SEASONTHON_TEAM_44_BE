@@ -1,4 +1,4 @@
-package groom._55.dto;
+package groom._55.dto.request;
 
 public record StoreCreateRequest(
         String name,
@@ -7,7 +7,6 @@ public record StoreCreateRequest(
         String phone,
         String address,
         String detailAddress,
-        String category,
         Integer open,
         Integer close
 ) {}

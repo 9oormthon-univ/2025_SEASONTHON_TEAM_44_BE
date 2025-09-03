@@ -1,4 +1,4 @@
-package groom._55.dto;
+package groom._55.dto.response;
 
 public record StoreResponse(
         String name,
@@ -7,7 +7,6 @@ public record StoreResponse(
         String phone,
         String address,
         String detailAddress,
-        String category,
         Integer open,
         Integer close
 ) {}

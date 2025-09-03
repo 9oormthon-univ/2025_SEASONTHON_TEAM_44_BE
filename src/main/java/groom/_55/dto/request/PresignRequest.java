@@ -1,4 +1,4 @@
-package groom._55.dto;
+package groom._55.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

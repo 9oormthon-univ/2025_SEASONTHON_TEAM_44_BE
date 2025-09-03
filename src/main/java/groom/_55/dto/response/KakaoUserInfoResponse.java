@@ -11,7 +11,7 @@ import java.util.HashMap;
 @Getter
 @NoArgsConstructor //역직렬화를 위한 기본 생성자
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoUserInfoResponseDto {
+public class KakaoUserInfoResponse {
 
     //회원 번호
     @JsonProperty("id")
