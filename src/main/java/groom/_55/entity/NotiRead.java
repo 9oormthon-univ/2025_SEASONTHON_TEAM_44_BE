@@ -18,5 +18,6 @@ public class NotiRead extends BaseEntity {
     private User user;
 
     @ManyToOne
-    private Noti NotiId;
+    @JoinColumn(name = "noti_id")
+    private Noti Noti;
 }

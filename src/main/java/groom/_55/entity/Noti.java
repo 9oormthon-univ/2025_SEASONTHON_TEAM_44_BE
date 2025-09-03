@@ -24,7 +24,7 @@ public class Noti extends BaseEntity {
     @Column
     private String content;
 
-    @OneToMany(mappedBy = "NotiId")
+    @OneToMany(mappedBy = "Noti")
     private List<NotiRead> NotiRead = new ArrayList<>();
 
     @ManyToOne

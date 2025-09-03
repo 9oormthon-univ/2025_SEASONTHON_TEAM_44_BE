@@ -72,7 +72,7 @@ public void readNoti(Long userId, Long notiId) {
         // 2. NotiRead 엔티티 생성
         NotiRead notiRead = NotiRead.builder()
                 .user(user)
-                .NotiId(noti) // 필드명 NotiId 그대로 사용
+                .Noti(noti) // 필드명 NotiId 그대로 사용
                 .build();
 
         // 3. NotiRead 엔티티 저장
