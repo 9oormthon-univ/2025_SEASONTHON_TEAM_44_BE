@@ -15,10 +15,10 @@ public class Stamp extends BaseEntity {
     private Long id;
 
     @Column
-    private int useStamp;
+    private Integer availableStamp;
 
     @Column
-    private int totalStamp;
+    private Integer totalStamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;

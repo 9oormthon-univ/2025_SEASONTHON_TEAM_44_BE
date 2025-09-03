@@ -2,12 +2,15 @@ package groom._55.controller;
 
 
 import groom._55.dto.NotiReadRequest;
+import groom._55.dto.RegularMainResponse;
 import groom._55.dto.RegularStoreDetail;
 import groom._55.dto.StampRequest;
 import groom._55.service.RegularService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/regular")
@@ -48,4 +51,12 @@ public class RegularController {
 
         return ResponseEntity.ok("스탬프 찍기 완료");
     }
+
+    @GetMapping("/main")
+    public ResponseEntity<List<RegularMainResponse>> getRegularMain() {
+        Long userId = 1L; // 추후 인증 로직으로 대체
+        List<RegularMainResponse> response = regularService.getRegularStores(userId);
+        return ResponseEntity.ok(response);
+    }
+
 }
