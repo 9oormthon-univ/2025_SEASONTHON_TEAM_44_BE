@@ -35,8 +35,8 @@ public class Store extends BaseEntity {
     @Column
     private String introduction;
 
-    @Column
-    private String images;
+    @Column(name = "image_key", length = 512)
+    private String imageKey;
 
     @Column
     private String MondayOpen;
@@ -79,6 +79,7 @@ public class Store extends BaseEntity {
 
     @OneToOne
     private Stamp stamp;
+
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StampLog> log = new ArrayList<>();
