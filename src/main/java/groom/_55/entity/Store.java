@@ -1,6 +1,6 @@
 package groom._55.entity;
 
-import groom._55.dto.StoreCreateRequest;
+import groom._55.dto.request.StoreCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +23,6 @@ public class Store extends BaseEntity {
 
     @Column
     private String phone;
-
-    @Column
-    private String category;
 
     @Column
     private String address;
@@ -62,7 +59,7 @@ public class Store extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Noti>  noti = new ArrayList<>();
 
-    public static Store from(StoreCreateRequest req) {
+    public static Store from(StoreCreateRequest req, User user) {
         return Store.builder()
                 .name(req.name())
                 .imageKey(req.imageKey())
@@ -70,9 +67,9 @@ public class Store extends BaseEntity {
                 .phone(req.phone())
                 .address(req.address())
                 .detailAddress(req.detailAddress())
-                .category(req.category())
                 .open(req.open())
                 .close(req.close())
+                .user(user)
                 .build();
     }
 }

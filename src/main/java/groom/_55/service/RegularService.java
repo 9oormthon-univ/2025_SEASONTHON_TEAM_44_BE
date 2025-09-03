@@ -2,6 +2,9 @@ package groom._55.service;
 
 
 import groom._55.dto.*;
+import groom._55.dto.response.CouponResponse;
+import groom._55.dto.response.MyPageResponse;
+import groom._55.dto.response.RegularMainResponse;
 import groom._55.entity.*;
 import groom._55.repository.*;
 import jakarta.transaction.Transactional;
@@ -116,7 +119,6 @@ public void readNoti(Long userId, Long notiId) {
                     RegularMainResponse.builder()
                             .storeId(store.getId())
                             .storeName(store.getName())
-                            .category(store.getCategory())
                             .address(store.getAddress())
                             .phone(store.getPhone())
                             .lastVisit(lastVisit)

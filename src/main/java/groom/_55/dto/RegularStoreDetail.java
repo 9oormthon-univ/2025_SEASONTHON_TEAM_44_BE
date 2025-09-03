@@ -12,7 +12,6 @@ public class RegularStoreDetail {
     private Long notiId;
     private String name;
     private String phone;
-    private String category;
     private String address;
     private String detailAddress;
     private String introduction; // 소개 (주어진 엔티티에는 없지만, DTO에 추가하여 사용 가능)
@@ -24,7 +23,6 @@ public class RegularStoreDetail {
                 .notiId(notiId)
                 .name(store.getName())
                 .phone(store.getPhone())
-                .category(store.getCategory())
                 .address(store.getAddress())
                 .detailAddress(store.getDetailAddress())
                 // description과 recentNoti는 임시로 고정된 값을 사용합니다.

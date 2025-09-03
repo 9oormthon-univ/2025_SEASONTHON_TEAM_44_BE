@@ -1,11 +1,11 @@
-package groom._55.dto;
+package groom._55.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class NotiReadRequest {
+public class StampRequest {
     private Long storeId;
-    private Long notiId;
+    private Long userId;
 }

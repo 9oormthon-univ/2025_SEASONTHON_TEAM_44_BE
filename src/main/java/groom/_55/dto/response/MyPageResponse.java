@@ -1,5 +1,6 @@
-package groom._55.dto;
+package groom._55.dto.response;
 
+import groom._55.dto.RecentStoreDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

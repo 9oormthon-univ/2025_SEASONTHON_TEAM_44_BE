@@ -2,6 +2,11 @@ package groom._55.controller;
 
 
 import groom._55.dto.*;
+import groom._55.dto.request.NotiReadRequest;
+import groom._55.dto.request.StampRequest;
+import groom._55.dto.response.CouponResponse;
+import groom._55.dto.response.MyPageResponse;
+import groom._55.dto.response.RegularMainResponse;
 import groom._55.service.RegularService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

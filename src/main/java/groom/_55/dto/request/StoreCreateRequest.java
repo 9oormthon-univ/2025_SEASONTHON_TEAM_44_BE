@@ -1,13 +1,12 @@
-package groom._55.dto;
+package groom._55.dto.request;
 
-public record StoreResponse(
+public record StoreCreateRequest(
         String name,
-        String imageUrl,
+        String imageKey,
         String introduction,
         String phone,
         String address,
         String detailAddress,
-        String category,
         Integer open,
         Integer close
 ) {}
