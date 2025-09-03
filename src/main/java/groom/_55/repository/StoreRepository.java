@@ -13,4 +13,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Modifying
     @Query("update Store s set s.imageKey = :imageKey where s.id = :id")
     int updateImageKey(Long id, String imageKey);
+
+    int countByUserId(Long userId);
 }

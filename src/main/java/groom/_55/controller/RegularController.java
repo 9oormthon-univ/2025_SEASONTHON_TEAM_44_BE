@@ -69,4 +69,11 @@ public class RegularController {
         regularService.useCoupon(userId, stampId);
         return ResponseEntity.ok("쿠폰 사용 완료 (10 스탬프 차감)");
     }
+
+    @GetMapping("/mypage")
+    public ResponseEntity<MyPageResponse> getMyPage() {
+        Long userId = 1L; // 추후 인증 로직으로 교체
+        MyPageResponse response = regularService.getMyPage(userId);
+        return ResponseEntity.ok(response);
+    }
 }
