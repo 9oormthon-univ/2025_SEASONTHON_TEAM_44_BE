@@ -1,12 +1,15 @@
 package groom._55.service;
 
-import groom._55.dto.PresignDto.PresignRequest;
-import groom._55.dto.PresignDto.PresignResponse;
+import groom._55.dto.PresignRequest;
+import groom._55.dto.PresignResponse;
+import groom._55.dto.UrlResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.time.Duration;
@@ -20,16 +23,18 @@ public class PresignService {
     private final S3Presigner presigner;
 
     @Value("${aws.s3.bucket}") private String bucket;
+    @Value("${aws.s3.public:false}") private boolean publicReadable;
+    @Value("${aws.s3.publicUrlBase:}") private String publicUrlBase;
     @Value("${aws.s3.presignExpireSec:300}") private long presignExpireSec;
 
     public PresignResponse presign(PresignRequest req) {
         String safe = (req.fileName() == null ? "file.bin" : req.fileName())
                 .replaceAll("[^a-zA-Z0-9._-]", "_");
         String ext = extractExt(safe);
+        String base = stripExt(safe);
         LocalDate d = LocalDate.now();
         String key = "uploads/%04d/%02d/%s_%s.%s".formatted(
-                d.getYear(), d.getMonthValue(),
-                UUID.randomUUID(), stripExt(safe), ext);
+                d.getYear(), d.getMonthValue(), UUID.randomUUID(), base, ext);
 
         var put = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -43,6 +48,29 @@ public class PresignService {
 
         return new PresignResponse(key, pre.url().toString(),
                 System.currentTimeMillis() + presignExpireSec * 1000);
+    }
+
+    public UrlResponse presignGet(String key, Long expireSecOverride) {
+        long ttl = (expireSecOverride == null || expireSecOverride <= 0)
+                ? presignExpireSec : expireSecOverride;
+
+        var get = GetObjectRequest.builder().bucket(bucket).key(key).build();
+        PresignedGetObjectRequest pre = presigner.presignGetObject(b -> b
+                .getObjectRequest(get)
+                .signatureDuration(Duration.ofSeconds(ttl)));
+
+        return new UrlResponse(pre.url().toString(),
+                System.currentTimeMillis() + ttl * 1000);
+    }
+
+    public UrlResponse viewUrl(String key, Long expireSecOverride) {
+        if (publicReadable) {
+            String base = (publicUrlBase == null || publicUrlBase.isBlank())
+                    ? "" : (publicUrlBase.endsWith("/") ? publicUrlBase.substring(0, publicUrlBase.length() - 1) : publicUrlBase);
+            String url = base.isEmpty() ? key : base + "/" + key;
+            return new UrlResponse(url, -1L); // 퍼블릭은 만료 없음
+        }
+        return presignGet(key, expireSecOverride);
     }
 
     private String extractExt(String name) {

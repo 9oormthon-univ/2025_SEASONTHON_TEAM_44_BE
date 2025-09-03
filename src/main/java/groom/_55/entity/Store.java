@@ -1,5 +1,6 @@
 package groom._55.entity;
 
+import groom._55.dto.StoreCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,40 +40,16 @@ public class Store extends BaseEntity {
     private String imageKey;
 
     @Column
-    private String MondayOpen;
-    @Column
-    private String TuesdayOpen;
-    @Column
-    private String WednesdayOpen;
-    @Column
-    private String ThursdayOpen;
-    @Column
-    private String FridayOpen;
-    @Column
-    private String SaturdayOpen;
-    @Column
-    private String SundayOpen;
+    private Integer open;
 
     @Column
-    private String MondayClose;
-    @Column
-    private String TuesdayClose;
-    @Column
-    private String WednesdayClose;
-    @Column
-    private String ThursdayClose;
-    @Column
-    private String FridayClose;
-    @Column
-    private String SaturdayClose;
-    @Column
-    private String SundayClose;
+    private Integer close;
 
     @Column
     private int yesterdayNewRegular;
+
     @Column
     private int yesterdayRevisitRegular;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -80,10 +57,22 @@ public class Store extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Stamp> stamp = new ArrayList<>();
 
-
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StampLog> log = new ArrayList<>();
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Noti>  noti = new ArrayList<>();
 
+    public static Store from(StoreCreateRequest req) {
+        return Store.builder()
+                .name(req.name())
+                .imageKey(req.imageKey())
+                .introduction(req.introduction())
+                .phone(req.phone())
+                .address(req.address())
+                .detailAddress(req.detailAddress())
+                .category(req.category())
+                .open(req.open())
+                .close(req.close())
+                .build();
+    }
 }

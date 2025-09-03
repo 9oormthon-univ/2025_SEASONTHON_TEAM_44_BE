@@ -10,11 +10,10 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class S3Config {
     @Bean
-    public S3Presigner s3Presigner(@Value("${aws.region:ap-northeast-2}") String region) {
+    public S3Presigner s3Presigner(@Value("${aws.region}") String region) {
         return S3Presigner.builder()
-                .region(Region.of(region.trim()))
+                .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }
-
 }
