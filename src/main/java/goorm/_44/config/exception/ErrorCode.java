@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    // 400 BAD REQUEST
+    ALREADY_REGULAR(HttpStatus.BAD_REQUEST, "이미 단골로 등록된 사용자입니다."),
+
     // 403 FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 

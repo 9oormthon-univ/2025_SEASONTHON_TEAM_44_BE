@@ -1,6 +1,7 @@
 package goorm._44.controller.regular;
 
 
+import goorm._44.config.api.ApiResult;
 import goorm._44.dto.RegularStoreDetail;
 import goorm._44.dto.request.NotiReadRequest;
 import goorm._44.dto.request.StampRequest;
@@ -25,6 +26,28 @@ public class RegularController {
 
     private final RegularService regularService;
 
+    @GetMapping("/{storeId}")
+    @Operation(summary = "단골 여부 확인", description = "사용자가 특정 가게의 단골인지 확인합니다.")
+    public ApiResult<Boolean> checkRegular(
+            @PathVariable Long storeId,
+            Authentication authentication) {
+
+        Long userId = Long.parseLong(authentication.getName());
+        boolean isRegular = regularService.isRegular(userId, storeId);
+        return ApiResult.success(isRegular);
+    }
+
+    @PostMapping("/{storeId}")
+    @Operation(summary = "단골 등록", description = "사용자가 특정 가게의 단골이 됩니다.")
+    public ApiResult<String> registerRegular(
+            @PathVariable Long storeId,
+            Authentication authentication
+    ) {
+        Long userId = Long.parseLong(authentication.getName());
+        regularService.registerRegular(userId, storeId);
+        return ApiResult.success("단골 등록이 완료되었습니다.");
+    }
+
     // GET /regular/store/detail/{storeId}
     @GetMapping("/store/detail/{storeId}")
     @Operation(summary = "가게 상세보기", description = "가게의 주소, 전화번호, 소개글 등이 포함되어 있는 가게의 자세 정보 페이지입니다. 가장 최근의 공지를 가져오고 읽음 여부는 hasNewNoti로 True/false로 구분합니다.")
@@ -47,7 +70,7 @@ public class RegularController {
     // POST /regular/store/detail
     //    해당 함수는 만약 Stamp 데이터베이스에 등록이 안되어있다면 오류 발생
     //    즉 만약 단골 등록이 안되어있는 상태로 스탬프 찍으면 서버 에러 발생
-    @PostMapping("/store/detail")
+    @PostMapping("/store/stamp")
     @Operation(summary = "해당 가게의 스탬프 찍기 버튼입니다.")
     public ResponseEntity<String> registerRegularStore(@RequestBody StampRequest request, Authentication authentication) {
         // userId와 storeId를 요청 본문에서 직접 가져옵니다.

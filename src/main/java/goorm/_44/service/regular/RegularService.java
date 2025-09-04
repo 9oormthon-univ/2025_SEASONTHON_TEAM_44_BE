@@ -1,6 +1,8 @@
 package goorm._44.service.regular;
 
 
+import goorm._44.config.exception.CustomException;
+import goorm._44.config.exception.ErrorCode;
 import goorm._44.dto.RecentStoreDto;
 import goorm._44.dto.RegularStoreDetail;
 import goorm._44.dto.response.CouponResponse;
@@ -30,6 +32,43 @@ public class RegularService {
     private final StampRepository stampRepository;
     private final StampLogRepository stampLogRepository;
     private final StoreRepository storeRepository;
+
+
+    @Transactional
+    public boolean isRegular(Long userId, Long storeId) {
+        return stampRepository.existsByUserIdAndStoreId(userId, storeId);
+    }
+
+    @Transactional
+    public void registerRegular(Long userId, Long storeId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
+        // 이미 단골이면 예외
+        boolean exists = stampRepository.existsByUserIdAndStoreId(userId, storeId);
+        if (exists) {
+            throw new CustomException(ErrorCode.ALREADY_REGULAR);
+        }
+
+        // 1. Stamp 생성
+        Stamp stamp = Stamp.builder()
+                .availableStamp(1)
+                .totalStamp(1)
+                .user(user)
+                .store(store)
+                .build();
+        stampRepository.save(stamp);
+
+        // 2. StampLog 생성 (행동: 신규 등록)
+        StampLog log = StampLog.builder()
+                .stamp(stamp)
+                .store(store)
+                .action(StampAction.REGISTER)
+                .build();
+        stampLogRepository.save(log);
+    }
 
     public void main(String userId) {
 //        1. 유저 정보 가져오기 (유저 PK찾아오기)

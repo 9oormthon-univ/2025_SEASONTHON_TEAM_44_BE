@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface StampRepository extends JpaRepository<Stamp, Long> {
+    boolean existsByUserIdAndStoreId(Long userId, Long storeId);
+
     Optional<Stamp> findByUserIdAndStoreId(Long userId, Long storeId);
     List<Stamp> findByUserId(Long userId);
     Optional<Stamp> findByIdAndUserId(Long stampId, Long userId);
