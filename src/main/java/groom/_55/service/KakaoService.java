@@ -2,6 +2,7 @@ package groom._55.service;
 
 import groom._55.dto.response.KakaoTokenResponse;
 import groom._55.dto.response.KakaoUserInfoResponse;
+import groom._55.repository.UserRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,15 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Service
 public class KakaoService {
+    private final UserRepository userRepository;
 
     private String clientId;
     private final String KAUTH_TOKEN_URL_HOST ;
     private final String KAUTH_USER_URL_HOST;
 
     @Autowired
-    public KakaoService(@Value("${kakao.client_id}") String clientId) {
+    public KakaoService(UserRepository userRepository, @Value("${kakao.client_id}") String clientId) {
+        this.userRepository = userRepository;
         this.clientId = clientId;
         KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
         KAUTH_USER_URL_HOST = "https://kapi.kakao.com";

@@ -30,10 +30,8 @@ public class RegularService {
 
     public void main(String userId) {
 //        1. 유저 정보 가져오기 (유저 PK찾아오기)
-        User byUsername = userRepository.findByName(userId);
-        if (byUsername == null) {
-            log.info("해당 아이디에 맞는 유저를 찾지 못했습니다.");
-        }
+        User byUsername = userRepository.findByName(userId).orElseThrow(() -> new RuntimeException("해당 아이디에 맞는 유저를 찾지 못했습니다."));
+
 //        2. 가져온 유저 정보 바탕으로 단골 가게 및 단골 가게의 최근 방문일, 방문 횟수 등을 가져오기
 //        최근 방문일, 방문 횟수는 모두 Regular 바탕으로 가져옴
         Long foundUserId = byUsername.getId(); //위에서 null처리 여부 확인하므로 추가 처리x

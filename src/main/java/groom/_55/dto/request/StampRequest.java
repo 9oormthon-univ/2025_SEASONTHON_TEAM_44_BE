@@ -7,5 +7,4 @@ import lombok.Setter;
 @Setter
 public class StampRequest {
     private Long storeId;
-    private Long userId;
 }

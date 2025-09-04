@@ -26,7 +26,7 @@ public class Noti extends BaseEntity {
     private NotiTarget target;     // ALL / BASIC / CERTIFIED
 
     @Column
-    private int targetCount;
+    private Integer targetCount;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
