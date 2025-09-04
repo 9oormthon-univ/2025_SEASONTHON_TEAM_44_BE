@@ -6,6 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NotiReadRequest {
-    private Long storeId;
     private Long notiId;
 }

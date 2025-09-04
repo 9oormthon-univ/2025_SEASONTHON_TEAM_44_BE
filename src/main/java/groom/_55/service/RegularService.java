@@ -1,7 +1,8 @@
 package groom._55.service;
 
 
-import groom._55.dto.*;
+import groom._55.dto.RecentStoreDto;
+import groom._55.dto.RegularStoreDetail;
 import groom._55.dto.response.CouponResponse;
 import groom._55.dto.response.MyPageResponse;
 import groom._55.dto.response.RegularMainResponse;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +45,8 @@ public class RegularService {
         Store storeById = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("가게를 찾을 수 없습니다."));
         Noti latestNoti = notiRepository.findFirstByStoreIdOrderByCreatedAtDesc(storeId)
                 .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
-        return RegularStoreDetail.fromEntity(storeById, latestNoti.getTitle(), latestNoti.getContent(), latestNoti.getId());
+        boolean hasNewNoti = !notiReadRepository.existsByUserIdAndNotiId(userId, latestNoti.getId());
+        return RegularStoreDetail.fromEntity(storeById, latestNoti.getTitle(), latestNoti.getContent(), latestNoti.getId(), hasNewNoti);
     }
 
 //    /regular/store/detail/{storeId} [Post]로 스탬프를 찍을 시
@@ -87,19 +91,13 @@ public void readNoti(Long userId, Long notiId) {
 
     public List<RegularMainResponse> getRegularStores(Long userId) {
         List<Store> stores = storeRepository.findByUserId(userId);
-        for (Store store : stores) {
-            System.out.println(store.getName());
-        }
         List<RegularMainResponse> result = new ArrayList<>();
 
         for (Store store : stores) {
             // 스탬프 정보 가져오기
             Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, store.getId())
                     .orElse(null);
-            System.out.println("스탬프 정보 출력");
-            System.out.println(stamp);
 
-            // 마지막 방문일 & 방문 횟수
             var lastVisit = stamp != null ? stamp.getUpdatedAt() : null;
             var totalVisits = stamp != null ? stamp.getTotalStamp() : 0;
 
@@ -126,8 +124,14 @@ public void readNoti(Long userId, Long notiId) {
             );
         }
 
+        // ✅ lastVisit 기준으로 정렬 (null 은 마지막으로 보냄)
+        result.sort(Comparator.comparing(
+                r -> r.getLastVisit() == null ? LocalDateTime.MAX : r.getLastVisit()
+        ));
+
         return result;
     }
+
 
 
     public List<CouponResponse> getCoupons(Long userId) {

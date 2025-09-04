@@ -17,19 +17,23 @@ public class RegularStoreDetail {
     private String introduction; // 소개 (주어진 엔티티에는 없지만, DTO에 추가하여 사용 가능)
     private String recentNotiTitle; // 최근 공지사항 문자열 필드
     private String recentNotiContent;
+    private Integer open;
+    private Integer close;
+    private boolean hasNewNoti;
 
-    public static RegularStoreDetail fromEntity(Store store, String notificationTitle, String notificationContent, Long notiId) {
+    public static RegularStoreDetail fromEntity(Store store, String notificationTitle, String notificationContent, Long notiId, boolean hasNewNoti) {
         return RegularStoreDetail.builder()
                 .notiId(notiId)
                 .name(store.getName())
                 .phone(store.getPhone())
                 .address(store.getAddress())
                 .detailAddress(store.getDetailAddress())
-                // description과 recentNoti는 임시로 고정된 값을 사용합니다.
-                // 실제로는 다른 로직을 통해 데이터를 가져와야 합니다.
+                .open(store.getOpen())
+                .close(store.getClose())
                 .introduction(store.getIntroduction())
                 .recentNotiTitle(notificationTitle)
                 .recentNotiContent(notificationContent)
+                .hasNewNoti(hasNewNoti)
                 .build();
     }
 }
