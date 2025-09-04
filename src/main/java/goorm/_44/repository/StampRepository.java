@@ -25,4 +25,11 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
     // 특정 유저의 해당 매장 totalStamp 조회 (없으면 0 반환)
     @Query("SELECT COALESCE(s.totalStamp, 0) FROM Stamp s WHERE s.user.id = :userId AND s.store.id = :storeId")
     int findTotalStampByUserAndStore(@Param("userId") Long userId, @Param("storeId") Long storeId);
+
+    // 특정 가게의 모든 단골 (User와 지역정보 필요)
+    @Query("SELECT s.user.region, COUNT(s) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId " +
+            "GROUP BY s.user.region")
+    List<Object[]> countByRegionForStore(Long storeId);
 }
