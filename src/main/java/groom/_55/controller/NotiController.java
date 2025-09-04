@@ -4,6 +4,7 @@ import groom._55.dto.request.NotiCreateRequest;
 import groom._55.dto.response.NotiDetailResponse;
 import groom._55.service.NotiService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/noti")
 @RequiredArgsConstructor
+@Tag(name = "Noti", description = "공지 관련 API")
 public class NotiController {
 
     private final NotiService notiService;
