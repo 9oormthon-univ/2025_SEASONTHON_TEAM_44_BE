@@ -1,8 +1,10 @@
 package goorm._44.repository;
 
+import goorm._44.entity.StampAction;
 import goorm._44.entity.StampLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -23,6 +25,11 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
 
     // 특정 가게의 QR 스캔(방문) 횟수
     int countByStore_Id(Long storeId);
+
+    // 특정 사용자가 특정 가게에서 남긴 특정 액션 횟수 (예: 쿠폰 사용 횟수)
+    int countByStamp_User_IdAndStore_IdAndAction(Long userId, Long storeId, StampAction action);
+
+    int countByStamp_User_IdAndStore_IdAndIdLessThanEqual(Long userId, Long storeId, Long logId);
 
     // 오늘 방문자 수 (distinct userId)
     @Query("SELECT COUNT(DISTINCT sl.stamp.user.id) " +
@@ -46,4 +53,25 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
             "AND sl.stamp.totalStamp > 1 " +
             "AND DATE(sl.createdAt) = CURRENT_DATE")
     int countTodayRevisitRegulars(Long storeId);
+
+    @Query("""
+        SELECT COALESCE(SUM(
+            CASE 
+                WHEN l.action = 'REGISTER' THEN 1
+                WHEN l.action = 'VISIT' THEN 1
+                WHEN l.action = 'COUPON' THEN -10
+                ELSE 0
+            END
+        ), 0)
+        FROM StampLog l
+        WHERE l.stamp.user.id = :userId
+          AND l.store.id = :storeId
+          AND l.createdAt <= :createdAt
+    """)
+    int calculateCumulative(
+            @Param("userId") Long userId,
+            @Param("storeId") Long storeId,
+            @Param("createdAt") LocalDateTime createdAt
+    );
+
 }

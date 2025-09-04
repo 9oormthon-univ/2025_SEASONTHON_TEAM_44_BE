@@ -2,12 +2,9 @@ package goorm._44.controller.regular;
 
 
 import goorm._44.config.api.ApiResult;
-import goorm._44.dto.RegularStoreDetail;
+import goorm._44.dto.response.*;
 import goorm._44.dto.request.NotiReadRequest;
 import goorm._44.dto.request.StampRequest;
-import goorm._44.dto.response.CouponResponse;
-import goorm._44.dto.response.MyPageResponse;
-import goorm._44.dto.response.RegularMainResponse;
 import goorm._44.service.regular.RegularService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,14 +45,26 @@ public class RegularController {
         return ApiResult.success("단골 등록이 완료되었습니다.");
     }
 
-    // GET /regular/store/detail/{storeId}
-    @GetMapping("/store/detail/{storeId}")
-    @Operation(summary = "가게 상세보기", description = "가게의 주소, 전화번호, 소개글 등이 포함되어 있는 가게의 자세 정보 페이지입니다. 가장 최근의 공지를 가져오고 읽음 여부는 hasNewNoti로 True/false로 구분합니다.")
-    public ResponseEntity<RegularStoreDetail> getRegularStoreDetail(@PathVariable Long storeId, Authentication authentication) {
-        // 실제 유저 ID는 세션, JWT 토큰 등에서 가져와야 합니다.
+    @GetMapping("/main")
+    @Operation(summary = "단골 가게 메인 조회", description = "내 단골 가게 목록과 새 공지 여부를 조회합니다.")
+    public ApiResult<?> getMyRegularStores(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
-        RegularStoreDetail detail = regularService.getDetail(userId, storeId);
-        return ResponseEntity.ok(detail);
+        List<RegularMainResponse> stores = regularService.getRegularStores(userId);
+
+        return ApiResult.success(new Object() {
+            public final int count = stores.size();
+            public final List<RegularMainResponse> storeList = stores;
+        });
+    }
+
+    @GetMapping("/{storeId}/detail")
+    @Operation(summary = "단골 가게 상세 조회", description = "단골 가게 상세 정보와 최신 공지를 조회합니다.")
+    public ApiResult<StoreDetailResponse> getStoreDetail(
+            @PathVariable Long storeId,
+            Authentication authentication
+    ) {
+        Long userId = Long.parseLong(authentication.getName());
+        return ApiResult.success(regularService.getStoreDetail(userId, storeId));
     }
 
     // POST /regular/noti/read
@@ -80,14 +89,6 @@ public class RegularController {
         regularService.addStamp(storeId, userId);
 
         return ResponseEntity.ok("스탬프 찍기 완료");
-    }
-
-    @GetMapping("/main")
-    @Operation(summary = "단골 메인홈 페이지 입니다.", description = "방문한지 오래된 순서로 전달합니다.")
-    public ResponseEntity<List<RegularMainResponse>> getRegularMain(Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        List<RegularMainResponse> response = regularService.getRegularStores(userId);
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/coupon")

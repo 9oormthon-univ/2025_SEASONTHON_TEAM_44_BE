@@ -1,4 +1,4 @@
-package goorm._44.dto;
+package goorm._44.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

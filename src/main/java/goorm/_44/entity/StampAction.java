@@ -3,5 +3,5 @@ package goorm._44.entity;
 public enum StampAction {
     REGISTER,   // 신규 등록
     VISIT,      // 방문 적립
-    COUPON_USE  // 쿠폰 사용
+    COUPON       // 쿠폰 사용
 }
