@@ -18,10 +18,17 @@ public class Noti extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
+    @Enumerated(EnumType.STRING)   // enum 이름 그대로 저장
     @Column
+    private NotiTarget target;     // ALL / BASIC / CERTIFIED
+
+    @Column
+    private int targetCount;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @OneToMany(mappedBy = "noti")
