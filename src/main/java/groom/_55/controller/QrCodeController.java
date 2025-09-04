@@ -7,6 +7,9 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 
+import groom._55.config.api.ApiResult;
+import groom._55.config.exception.CustomException;
+import groom._55.config.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,7 @@ public class QrCodeController {
 
     @GetMapping("/generate")
     @Operation(summary = "QR 코드 생성", description = "입력한 url을 QR 코드 이미지로 변환합니다.")
-    public ResponseEntity<QrResponse> generateQr(@RequestParam String url) {
+    public ApiResult<QrResponse> generateQr(@RequestParam String url) {
         try {
             int width = 200;
             int height = 200;
@@ -37,18 +40,17 @@ public class QrCodeController {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(encode, "PNG", out);
 
-            // Base64 인코딩 (프론트에서 <img src="data:image/png;base64,..."/> 사용 가능)
             String base64Image = "data:image/png;base64," +
                     Base64.getEncoder().encodeToString(out.toByteArray());
 
-            return ResponseEntity.ok(new QrResponse(base64Image));
+            return ApiResult.success(new QrResponse(base64Image));
         } catch (WriterException | IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     public record QrResponse(String qrImage) {}
+}
 
 //    // 1. QR 코드 생성기 페이지를 반환합니다.
 //    @GetMapping("/qr_code")
@@ -78,4 +80,4 @@ public class QrCodeController {
 //            return ResponseEntity.badRequest().build();
 //        }
 //    }
-}
+//}

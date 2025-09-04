@@ -1,4 +1,4 @@
-package groom._55.config;
+package groom._55.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

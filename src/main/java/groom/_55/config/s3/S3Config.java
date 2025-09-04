@@ -1,4 +1,4 @@
-package groom._55.config;
+package groom._55.config.s3;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
