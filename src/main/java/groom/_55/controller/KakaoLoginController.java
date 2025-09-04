@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -24,27 +26,29 @@ public class KakaoLoginController {
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 제공자를 주입받아 사용
 
     @GetMapping("/callback")
-    public ResponseEntity<String> callback(@RequestParam("code") String code) {
-        String accessToken = kakaoService.getAccessTokenFromKakao(code);
-        KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(accessToken);
+    public ResponseEntity<?> callback(@RequestParam("code") String code) {
+        String accessTokenFromKakao = kakaoService.getAccessTokenFromKakao(code);
+        KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(accessTokenFromKakao);
 
         String nickname = userInfo.getKakaoAccount().getProfile().getNickName();
 
-        // 닉네임 기준으로 사용자 조회
+        // 닉네임 기준으로 사용자 조회 or 회원가입
         User user = userRepository.findByName(nickname)
-                .orElseGet(() -> {
-                    // 없으면 회원가입
-                    return userRepository.save(
-                            User.builder()
-                                    .name(nickname)
-                                    .password(String.valueOf(userInfo.getId())) // 어차피 안쓸 값
-                                    .build()
-                    );
-                });
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .name(nickname)
+                                .password(String.valueOf(userInfo.getId()))
+                                .build()
+                ));
 
-        // userId를 subject로 해서 JWT 생성
-        String jwtToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
+        // JWT 발급
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));
 
-        return ResponseEntity.ok(jwtToken);
+        // 액세스 + 리프레시 토큰 반환
+        return ResponseEntity.ok(Map.of(
+                "accessToken", accessToken,
+                "refreshToken", refreshToken
+        ));
     }
 }
