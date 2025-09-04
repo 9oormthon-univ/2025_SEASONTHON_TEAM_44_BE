@@ -1,4 +1,4 @@
-package goorm._44.dto;
+package goorm._44.dto.response;
 
 import goorm._44.entity.Store;
 import lombok.*;

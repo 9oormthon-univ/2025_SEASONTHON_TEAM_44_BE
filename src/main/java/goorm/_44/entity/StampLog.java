@@ -19,4 +19,8 @@ public class StampLog extends BaseEntity {
 
     @ManyToOne
     private Store store;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StampAction action;  // 행동 유형
 }

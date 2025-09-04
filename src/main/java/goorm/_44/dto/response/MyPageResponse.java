@@ -1,6 +1,5 @@
 package goorm._44.dto.response;
 
-import goorm._44.dto.RecentStoreDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
