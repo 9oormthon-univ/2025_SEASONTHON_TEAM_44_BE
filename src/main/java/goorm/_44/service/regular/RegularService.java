@@ -328,6 +328,8 @@ public void readNoti(Long userId, Long notiId) {
                         .build();
 
         stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
+        stamp.setTotalStamp(stamp.getTotalStamp() + 1);
+
         stampLogRepository.save(log);
         stampRepository.save(stamp);
     }

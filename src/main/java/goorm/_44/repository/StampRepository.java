@@ -43,4 +43,10 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
             "WHERE s.user.id = :userId AND s.store.id = :storeId")
     Integer findTotalStampByUserAndStore(@Param("userId") Long userId,
                                          @Param("storeId") Long storeId);
+
+    // 지금까지 누적된 스탬프 수 (모든 유저 합)
+    @Query("SELECT COALESCE(SUM(s.totalStamp), 0) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId")
+    int sumTotalStampsByStore(Long storeId);
 }

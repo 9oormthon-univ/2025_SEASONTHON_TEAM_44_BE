@@ -2,6 +2,7 @@ package goorm._44.service.user;
 
 import goorm._44.config.exception.CustomException;
 import goorm._44.config.exception.ErrorCode;
+import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PresignService presignService;
 
     @Transactional
     public void updateLocation(Long userId, String region) {
@@ -19,6 +21,23 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setRegion(region);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserSimpleResponse getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // User 엔티티에 profileImageKey 필드가 있다고 가정
+        String profileImageUrl = (user.getProfileImageKey() == null)
+                ? null
+                : presignService.viewUrl(user.getProfileImageKey(), null).url();
+
+        return new UserSimpleResponse(
+                user.getName(),
+                profileImageUrl,
+                user.getRegion()
+        );
     }
 }
 

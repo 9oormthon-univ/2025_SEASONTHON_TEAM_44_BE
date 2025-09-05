@@ -37,14 +37,13 @@ public class NotiController {
         return ApiResult.success(notiService.getNotiLogs(userId));
     }
 
-    // TODO : 로직 수정 필요
-    @Operation(summary = "안읽은 공지 단건 조회", description = "사용자에게 해당되며 아직 읽지 않은 공지를 반환합니다. 이미 읽었거나 대상이 아니면 null을 반환합니다.")
-    @GetMapping("/{notiId}")
-    public ResponseEntity<NotiDetailResponse> getUnreadNoti(@PathVariable Long notiId,
-                                                            Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
-        return ResponseEntity.ok(notiService.getUnreadNoti(userId, notiId));
-    }
+//    @Operation(summary = "안읽은 공지 단건 조회", description = "사용자에게 해당되며 아직 읽지 않은 공지를 반환합니다. 이미 읽었거나 대상이 아니면 null을 반환합니다.")
+//    @GetMapping("/{notiId}")
+//    public ResponseEntity<NotiDetailResponse> getUnreadNoti(@PathVariable Long notiId,
+//                                                            Authentication authentication) {
+//        Long userId = Long.parseLong(authentication.getName());
+//        return ResponseEntity.ok(notiService.getUnreadNoti(userId, notiId));
+//    }
 }
 
 //    @Operation(summary = "공지 확인 처리", description = "사용자가 공지를 읽었을 때 확인 처리합니다.")
