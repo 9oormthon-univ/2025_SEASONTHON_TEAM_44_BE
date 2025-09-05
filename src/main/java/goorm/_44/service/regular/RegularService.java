@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +87,7 @@ public class RegularService {
                     Store store = stamp.getStore();
 
                     // 마지막 방문일 = 가장 최근 StampLog.createdAt
-                    var lastVisit = store.getLog().stream()
+                    LocalDateTime lastVisit = store.getLog().stream()
                             .filter(log -> log.getStamp().getUser().getId().equals(userId))
                             .map(StampLog::getCreatedAt)
                             .max(LocalDateTime::compareTo)
@@ -182,13 +186,6 @@ public class RegularService {
     }
 
 
-
-
-
-
-
-
-
     public void main(String userId) {
 //        1. 유저 정보 가져오기 (유저 PK찾아오기)
         User byUsername = userRepository.findByName(userId).orElseThrow(() -> new RuntimeException("해당 아이디에 맞는 유저를 찾지 못했습니다."));
@@ -228,8 +225,8 @@ public class RegularService {
         stampLogRepository.save(stampLog);
     }
 
-//    regular/noti/read/{stroeId} 공지 읽기. POST
-public void readNoti(Long userId, Long notiId) {
+    //    regular/noti/read/{stroeId} 공지 읽기. POST
+    public void readNoti(Long userId, Long notiId) {
         // 1. User와 Noti 엔티티를 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -297,20 +294,23 @@ public void readNoti(Long userId, Long notiId) {
         List<CouponResponse> result = new ArrayList<>();
 
         for (Stamp stamp : stamps) {
-            int couponCount = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0) / 10;
+            int availableStamp = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0);
+            int couponCount = availableStamp / 10;
 
             result.add(
                     CouponResponse.builder()
+                            .stampId(stamp.getId()) //스탬프 ID 추가
                             .storeId(stamp.getStore().getId())
                             .storeName(stamp.getStore().getName())
-                            .storeImage(stamp.getStore().getImageKey())
+                            .storeImage(stamp.getStore().getImageKey()) // 엔티티에 images 필드 있음
+                            .availableStamp(availableStamp)           //스탬프 수 추가
                             .couponCount(couponCount)
                             .build()
             );
         }
-
         return result;
     }
+
 
     @Transactional
     public void useCoupon(Long userId, Long stampId) {
@@ -322,26 +322,26 @@ public void readNoti(Long userId, Long notiId) {
         }
 
         StampLog log = StampLog.builder()
-                        .stamp(stamp)
-                        .store(stamp.getStore())
-                        .action(StampAction.COUPON)
-                        .build();
+                .stamp(stamp)
+                .store(stamp.getStore())
+                .action(StampAction.COUPON)
+                .build();
 
         stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
         stamp.setTotalStamp(stamp.getTotalStamp() + 1);
-
+      
         stampLogRepository.save(log);
         stampRepository.save(stamp);
     }
 
     public MyPageResponse getMyPage(Long userId) {
         // 1) 단골 가게 수
-        int storeCount = storeRepository.countByUserId(userId);
+        int storeCount = stampRepository.countByUserId(userId);
 
         // 2) 보유 스탬프 수 (단순 합계)
         List<Stamp> stamps = stampRepository.findByUserId(userId);
         int totalStamp = stamps.stream()
-                .mapToInt(stamp -> stamp.getTotalStamp())
+                .mapToInt(Stamp::getTotalStamp)
                 .sum();
 
         // 3) 보유 쿠폰 수 (가게별로 10 단위로 나눈 후 합산)
@@ -349,15 +349,26 @@ public void readNoti(Long userId, Long notiId) {
                 .mapToInt(stamp -> stamp.getAvailableStamp() / 10)
                 .sum();
 
-        // 4) 최근 방문한 가게 3개
-        List<StampLog> logs = stampLogRepository.findTop5ByStamp_User_IdOrderByCreatedAtDesc(userId);
-        List<RecentStoreDto> recentStores = logs.stream()
-                .map(log -> RecentStoreDto.builder()
-                        .storeId(log.getStore().getId())
-                        .storeName(log.getStore().getName())
-                        .storeImage(log.getStore().getImageKey())
-                        .build()
-                )
+        // 4) 최근 방문 로그 불러오기 (최신순 여러 개, 중복 포함됨)
+        List<StampLog> logs = stampLogRepository.findTop20ByStamp_User_IdOrderByCreatedAtDesc(userId);
+
+        // 5) 중복 제거 후 최근 방문한 가게 3개 추출
+        List<RecentStoreWithStampDto> recentStores = logs.stream()
+                .filter(distinctByKey(log -> log.getStore().getId())) // storeId 기준 중복 제거
+                .limit(3)
+                .map(log -> {
+                    Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, log.getStore().getId())
+                            .orElse(null);
+
+                    int availableStamp = (stamp != null) ? stamp.getAvailableStamp() : 0;
+
+                    return RecentStoreWithStampDto.builder()
+                            .storeId(log.getStore().getId())
+                            .storeName(log.getStore().getName())
+                            .storeImage(log.getStore().getImageKey())
+                            .availableStamp(availableStamp)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return MyPageResponse.builder()
@@ -366,5 +377,11 @@ public void readNoti(Long userId, Long notiId) {
                 .couponCount(couponCount)
                 .recentStores(recentStores)
                 .build();
+    }
+
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

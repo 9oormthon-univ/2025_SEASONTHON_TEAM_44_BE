@@ -25,6 +25,8 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
     // 일반 단골: totalStamp < 10
     int countByStoreIdAndTotalStampLessThan(Long storeId, int totalStamp);
 
+    int countByUserId(Long userId);
+
     // 특정 가게의 모든 단골 (User와 지역정보 필요)
     @Query("SELECT s.user.region, COUNT(s) " +
             "FROM Stamp s " +

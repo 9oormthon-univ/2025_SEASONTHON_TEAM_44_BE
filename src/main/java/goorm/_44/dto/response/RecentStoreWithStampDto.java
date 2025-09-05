@@ -7,8 +7,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class RecentStoreDto {
+public class RecentStoreWithStampDto {
     private Long storeId;
     private String storeName;
     private String storeImage;
+    private int availableStamp;
 }
