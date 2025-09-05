@@ -46,7 +46,7 @@ public class RegularController {
     }
 
     @GetMapping("/main")
-    @Operation(summary = "단골 가게 메인 조회", description = "내 단골 가게 목록과 새 공지 여부를 조회합니다.")
+    @Operation(summary = "단골 가게 메인 조회", description = "내 단골 가게 목록과 새 공지 여부를 조회합니다. 스탬프 임박순으로 조회됩니다.")
     public ApiResult<?> getMyRegularStores(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         List<RegularMainResponse> stores = regularService.getRegularStores(userId);

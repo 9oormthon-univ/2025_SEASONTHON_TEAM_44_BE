@@ -15,6 +15,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PresignService presignService;
 
+    @Transactional(readOnly = true)
+    public boolean isLocationRegistered(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getRegion() != null && !user.getRegion().isBlank();
+    }
     @Transactional
     public void updateLocation(Long userId, String region) {
         User user = userRepository.findById(userId)

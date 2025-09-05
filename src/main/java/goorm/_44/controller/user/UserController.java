@@ -18,6 +18,14 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/location")
+    @Operation(summary = "위치 등록 여부 확인", description = "현재 로그인한 사용자가 위치를 등록했는지 여부를 반환합니다.")
+    public ApiResult<Boolean> isLocationRegistered(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        boolean registered = userService.isLocationRegistered(userId);
+        return ApiResult.success(registered);
+    }
+
     @PostMapping("/location")
     @Operation(summary = "위치 등록", description = "현재 로그인한 사용자의 주소를 등록합니다.")
     public ApiResult<String> registerLocation(

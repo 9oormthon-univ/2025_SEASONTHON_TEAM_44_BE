@@ -35,6 +35,10 @@ public class RegularService {
     private final StoreRepository storeRepository;
     private final PresignService presignService;
 
+    private String toImageUrl(String imageKey) {
+        return (imageKey == null) ? null : presignService.viewUrl(imageKey, null).url();
+    }
+
     @Transactional
     public boolean isRegular(Long userId, Long storeId) {
         return stampRepository.existsByUserIdAndStoreId(userId, storeId);
@@ -72,36 +76,47 @@ public class RegularService {
     }
 
 
+    @Transactional
     public List<RegularMainResponse> getRegularStores(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 내가 단골 등록한 스탬프 전체 조회 (없으면 빈 리스트 반환)
         List<Stamp> stamps = stampRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
-        if (stamps.isEmpty()) {
-            return List.of();
-        }
+        if (stamps.isEmpty()) return List.of();
 
+        // 1) 스탬프 임박순 정렬: (10 - (available % 10)) % 10  → 남은 개수(0~9)
+        //    남은 개수가 작을수록 앞, 동률이면 최근 방문일 최신순
+        stamps.sort(Comparator
+                .comparingInt((Stamp s) -> {
+                    int available = s.getAvailableStamp() == null ? 0 : s.getAvailableStamp();
+                    return (10 - (available % 10)) % 10; // 0~9 (0=딱 쿠폰 발급 직후 → 가장 안 임박)
+                })
+                .thenComparing((Stamp s) -> {
+                    // 최근 방문일 (없으면 MIN으로)
+                    LocalDateTime last = s.getStore().getLog().stream()
+                            .filter(log -> log.getStamp().getUser().getId().equals(userId))
+                            .map(StampLog::getCreatedAt)
+                            .max(LocalDateTime::compareTo)
+                            .orElse(LocalDateTime.MIN);
+                    return last;
+                }, Comparator.reverseOrder())
+        );
+
+        // 2) 매핑
         return stamps.stream()
                 .map(stamp -> {
                     Store store = stamp.getStore();
 
-                    // 마지막 방문일 = 가장 최근 StampLog.createdAt
                     LocalDateTime lastVisit = store.getLog().stream()
                             .filter(log -> log.getStamp().getUser().getId().equals(userId))
                             .map(StampLog::getCreatedAt)
                             .max(LocalDateTime::compareTo)
                             .orElse(null);
 
-                    // 방문 횟수
-                    Integer visitCount = (stamp.getTotalStamp() == null ? 0 : stamp.getTotalStamp());
+                    int visitCount = (stamp.getTotalStamp() == null ? 0 : stamp.getTotalStamp());
+                    String imageUrl = toImageUrl(store.getImageKey());
+                    int available = (stamp.getAvailableStamp() == null ? 0 : stamp.getAvailableStamp());
 
-                    // 이미지 URL
-                    String imageUrl = (store.getImageKey() == null)
-                            ? null
-                            : presignService.viewUrl(store.getImageKey(), null).url();
-
-                    // 새로운 공지 여부
                     boolean hasNewNoti = notiRepository.findByStoreId(store.getId()).stream()
                             .anyMatch(noti -> isTargetUserByTotal(noti, userId)
                                     && !notiReadRepository.existsByUserIdAndNotiId(userId, noti.getId()));
@@ -112,6 +127,7 @@ public class RegularService {
                             imageUrl,
                             lastVisit,
                             visitCount,
+                            available,
                             hasNewNoti
                     );
                 })
@@ -130,9 +146,7 @@ public class RegularService {
         Integer availableStamp = (stamp == null ? 0 : stamp.getAvailableStamp());
 
         // 이미지 URL
-        String imageUrl = (store.getImageKey() == null)
-                ? null
-                : presignService.viewUrl(store.getImageKey(), null).url();
+        String imageUrl = toImageUrl(store.getImageKey());
 
         // 최신 공지 (조건에 맞고 안 읽은 것만)
         StoreDetailResponse.NotiSimpleResponse latestNoti = notiRepository.findByStoreId(storeId).stream()
@@ -157,7 +171,7 @@ public class RegularService {
                 store.getDetailAddress(),
                 store.getOpen(),
                 store.getClose(),
-                imageUrl,
+                imageUrl,                // ✅ URL로 반환
                 availableStamp,
                 latestNoti
         );
@@ -297,12 +311,14 @@ public class RegularService {
             int availableStamp = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0);
             int couponCount = availableStamp / 10;
 
+            String storeImageUrl = toImageUrl(stamp.getStore().getImageKey());
+
             result.add(
                     CouponResponse.builder()
                             .stampId(stamp.getId()) //스탬프 ID 추가
                             .storeId(stamp.getStore().getId())
                             .storeName(stamp.getStore().getName())
-                            .storeImage(stamp.getStore().getImageKey()) // 엔티티에 images 필드 있음
+                            .storeImage(storeImageUrl) // ✅ URL로 내려줌 (필드명 유지)
                             .availableStamp(availableStamp)           //스탬프 수 추가
                             .couponCount(couponCount)
                             .build()
@@ -329,7 +345,7 @@ public class RegularService {
 
         stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
         stamp.setTotalStamp(stamp.getTotalStamp() + 1);
-      
+
         stampLogRepository.save(log);
         stampRepository.save(stamp);
     }
@@ -362,10 +378,12 @@ public class RegularService {
 
                     int availableStamp = (stamp != null) ? stamp.getAvailableStamp() : 0;
 
+                    String storeImageUrl = toImageUrl(log.getStore().getImageKey());
+
                     return RecentStoreWithStampDto.builder()
                             .storeId(log.getStore().getId())
                             .storeName(log.getStore().getName())
-                            .storeImage(log.getStore().getImageKey())
+                            .storeImage(storeImageUrl) // ✅ URL로 내려줌 (필드명 유지)
                             .availableStamp(availableStamp)
                             .build();
                 })

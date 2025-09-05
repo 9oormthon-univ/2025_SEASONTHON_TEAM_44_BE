@@ -8,5 +8,6 @@ public record RegularMainResponse(
         String imageUrl,
         LocalDateTime lastVisit,
         Integer visitCount,
+        Integer availableStamp,
         boolean hasNewNoti
 ) {}
