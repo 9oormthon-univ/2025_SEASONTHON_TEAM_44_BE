@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // '/api/login' 경로는 인증 없이 접근 가능
                         .requestMatchers("/api/login", "/login/page", "/callback", "/favicon.ico"
-                        , "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        , "/swagger-ui/**", "/v3/api-docs/**", "/geocode/address").permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
