@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface StampLogRepository extends JpaRepository<StampLog, Long> {
 
-    List<StampLog> findTop5ByStamp_User_IdOrderByCreatedAtDesc(Long userId);
+    List<StampLog> findTop20ByStamp_User_IdOrderByCreatedAtDesc(Long userId);
 
     // 사장님 가게의 모든 로그 최신순
     List<StampLog> findByStore_IdOrderByCreatedAtDesc(Long storeId);

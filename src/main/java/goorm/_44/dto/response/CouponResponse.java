@@ -1,15 +1,17 @@
 package goorm._44.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CouponResponse {
+    private Long stampId;       //스탬프 ID
     private Long storeId;
     private String storeName;
     private String storeImage;
-    private int couponCount; // availableStamp / 10
+    private int availableStamp; //사용가능 스탬프 수
+    private int couponCount;    //쿠폰 수 (availableStamp / 10)
 }
