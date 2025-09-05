@@ -328,7 +328,8 @@ public class RegularService {
                 .build();
 
         stamp.setAvailableStamp(stamp.getAvailableStamp() - 10);
-        stamp.setAvailableStamp(stamp.getTotalStamp() + 1);
+        stamp.setTotalStamp(stamp.getTotalStamp() + 1);
+      
         stampLogRepository.save(log);
         stampRepository.save(stamp);
     }

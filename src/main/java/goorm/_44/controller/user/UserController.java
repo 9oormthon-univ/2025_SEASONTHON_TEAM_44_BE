@@ -2,6 +2,7 @@ package goorm._44.controller.user;
 
 import goorm._44.config.api.ApiResult;
 import goorm._44.dto.request.UserLocationRequest;
+import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 @RestController
-@RequestMapping("/user/location")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "사용자 관련 API")
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/location")
     @Operation(summary = "위치 등록", description = "현재 로그인한 사용자의 주소를 등록합니다.")
     public ApiResult<String> registerLocation(
             @RequestBody UserLocationRequest req,
@@ -25,5 +26,12 @@ public class UserController {
         Long userId = Long.parseLong(authentication.getName());
         userService.updateLocation(userId, req.region());
         return ApiResult.success("위치 등록이 완료되었습니다.");
+    }
+
+    @GetMapping("/me/simple")
+    @Operation(summary = "내 정보 간단 조회", description = "현재 로그인한 사용자의 이름, 프로필 이미지, 지역을 조회합니다.")
+    public ApiResult<UserSimpleResponse> getMyInfo(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        return ApiResult.success(userService.getUserInfo(userId));
     }
 }

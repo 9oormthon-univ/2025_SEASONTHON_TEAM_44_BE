@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface NotiRepository extends JpaRepository<Noti, Long> {
     List<Noti> findByStoreId(Long storeId);
+    List<Noti> findByStoreIdOrderByCreatedAtDesc(Long storeId);
     Optional<Noti> findFirstByStoreIdOrderByCreatedAtDesc(Long storeId);
-    
 }

@@ -43,10 +43,10 @@ public class Store extends BaseEntity {
     private Integer close;
 
     @Column
-    private int yesterdayNewRegular;
+    private Integer yesterdayNewRegular;
 
     @Column
-    private int yesterdayRevisitRegular;
+    private Integer yesterdayRevisitRegular;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;

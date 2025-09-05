@@ -8,5 +8,6 @@ public record NotiLogResponse(
         String target,
         Integer targetCount,  // 수신 인원
         Integer readCount,    // 열람 수
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String content
 ) {}
