@@ -72,7 +72,7 @@ public class NotiService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
         // 해당 가게의 모든 공지 조회
-        List<Noti> notis = notiRepository.findByStoreId(store.getId());
+        List<Noti> notis = notiRepository.findByStoreIdOrderByCreatedAtDesc(store.getId());
 
         return notis.stream()
                 .map(noti -> new NotiLogResponse(
@@ -81,7 +81,8 @@ public class NotiService {
                         noti.getTarget().name(),
                         noti.getTargetCount(),
                         noti.getNotiRead().size(), // 열람 수 = 읽은 사용자 수
-                        noti.getCreatedAt()
+                        noti.getCreatedAt(),
+                        noti.getContent()
                 ))
                 .toList();
     }
