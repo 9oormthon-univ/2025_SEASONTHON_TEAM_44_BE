@@ -1,12 +1,12 @@
 package goorm._44.controller.user;
 
+import goorm._44.config.api.ApiResult;
 import goorm._44.dto.request.PresignRequest;
 import goorm._44.dto.response.PresignResponse;
 import goorm._44.service.user.PresignService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "User-File", description = "이미지 관련 API")
 public class FileController {
+
     private final PresignService presignService;
 
     @Operation(
@@ -31,19 +32,20 @@ public class FileController {
         """
     )
     @PostMapping("/presign")
-    public ResponseEntity<PresignResponse> presign(@RequestBody PresignRequest req) {
-        return ResponseEntity.ok(presignService.presign(req));
+    public ApiResult<PresignResponse> presign(@RequestBody PresignRequest req) {
+        return ApiResult.success(presignService.presign(req));
     }
 
-//    @GetMapping("/presign-get")
-//    public ResponseEntity<UrlResponse> presignGet(@RequestParam String key,
-//                                                  @RequestParam(required = false) Long expiresSec) {
-//        return ResponseEntity.ok(presignService.presignGet(key, expiresSec));
-//    }
-//
-//    @GetMapping("/view-url")
-//    public ResponseEntity<UrlResponse> viewUrl(@RequestParam String key,
-//                                               @RequestParam(required = false) Long expiresSec) {
-//        return ResponseEntity.ok(presignService.viewUrl(key, expiresSec));
-//    }
+    // 필요하면 GET용 Presign도 같은 방식으로
+    // @GetMapping("/presign-get")
+    // public ApiResult<UrlResponse> presignGet(@RequestParam String key,
+    //                                          @RequestParam(required = false) Long expiresSec) {
+    //     return ApiResult.success(presignService.presignGet(key, expiresSec));
+    // }
+    //
+    // @GetMapping("/view-url")
+    // public ApiResult<UrlResponse> viewUrl(@RequestParam String key,
+    //                                       @RequestParam(required = false) Long expiresSec) {
+    //     return ApiResult.success(presignService.viewUrl(key, expiresSec));
+    // }
 }
