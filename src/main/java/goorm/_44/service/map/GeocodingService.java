@@ -24,7 +24,7 @@ public class GeocodingService {
     }
 
     public Mono<String> getAddressFromCoordinates(double latitude, double longitude) {
-        return this.webClient.get()
+        Mono<String> result = this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("latlng", latitude + "," + longitude)
                         .queryParam("key", apiKey)
@@ -33,6 +33,7 @@ public class GeocodingService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(this::parseSpecificAddress); // 수정된 파싱 로직 호출
+        return result;
     }
 
     private String parseSpecificAddress(String jsonResponse) {

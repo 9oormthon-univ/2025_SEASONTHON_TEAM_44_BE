@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private String secret;
 
     // 토큰 만료 시간
-    private static final Duration ACCESS_TOKEN_VALIDITY = Duration.ofHours(1);      // 1시간
+    private static final Duration ACCESS_TOKEN_VALIDITY = Duration.ofDays(30);      // 1시간
     private static final Duration REFRESH_TOKEN_VALIDITY = Duration.ofDays(7);      // 7일
 
     /**
