@@ -28,7 +28,7 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
             CASE 
                 WHEN l.action = 'REGISTER' THEN 1
                 WHEN l.action = 'VISIT' THEN 1
-                WHEN l.action = 'COUPON' THEN -10
+                WHEN l.action = 'COUPON' THEN 1
                 ELSE 0
             END
         ), 0)
@@ -65,4 +65,6 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
     int countDistinctUsersByStoreAndDateAndAction(@Param("storeId") Long storeId,
                                                   @Param("date") LocalDate date,
                                                   @Param("action") StampAction action);
+
+
 }
