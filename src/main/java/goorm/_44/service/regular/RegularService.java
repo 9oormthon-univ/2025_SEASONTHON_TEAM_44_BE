@@ -148,7 +148,7 @@ public class RegularService {
         // 이미지 URL
         String imageUrl = toImageUrl(store.getImageKey());
 
-        // 최신 공지 (조건에 맞고 안 읽은 것만)
+        // 최신 공지
         StoreDetailResponse.NotiSimpleResponse latestNoti = notiRepository.findByStoreId(storeId).stream()
                 .sorted(Comparator.comparing(Noti::getCreatedAt).reversed())
                 .filter(noti -> isTargetUserByAvailable(noti, userId))
@@ -162,20 +162,34 @@ public class RegularService {
                 ))
                 .orElse(null);
 
+        // ✅ 포맷 적용해서 반환
         return new StoreDetailResponse(
                 store.getId(),
                 store.getName(),
                 store.getIntroduction(),
-                store.getPhone(),
+                formatPhone(store.getPhone()),  // 010-XXXX-XXXX
                 store.getAddress(),
                 store.getDetailAddress(),
-                store.getOpen(),
-                store.getClose(),
-                imageUrl,                // ✅ URL로 반환
+                formatTime(store.getOpen()),    // HH:mm
+                formatTime(store.getClose()),   // HH:mm
+                imageUrl,
                 availableStamp,
                 latestNoti
         );
     }
+
+    private String formatPhone(String phone) {
+        if (phone == null || phone.length() != 11) return phone;
+        return phone.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+    }
+
+    private String formatTime(Integer time) {
+        if (time == null) return null;
+        int hour = time / 100;
+        int minute = time % 100;
+        return String.format("%02d:%02d", hour, minute);
+    }
+
 
     // availableStamp 기준 (상세 페이지 등)
     private boolean isTargetUserByAvailable(Noti noti, Long userId) {

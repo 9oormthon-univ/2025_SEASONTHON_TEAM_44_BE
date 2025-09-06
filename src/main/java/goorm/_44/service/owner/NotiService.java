@@ -3,7 +3,7 @@ package goorm._44.service.owner;
 import goorm._44.config.exception.CustomException;
 import goorm._44.config.exception.ErrorCode;
 import goorm._44.dto.request.NotiCreateRequest;
-import goorm._44.dto.response.NotiDetailResponse;
+import goorm._44.dto.response.PageResponse;
 import goorm._44.dto.response.NotiLogResponse;
 import goorm._44.entity.Noti;
 import goorm._44.entity.NotiTarget;
@@ -15,10 +15,15 @@ import goorm._44.repository.StampRepository;
 import goorm._44.repository.StoreRepository;
 import goorm._44.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +34,7 @@ public class NotiService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
 
-    private static final int CERTIFIED_THRESHOLD = 10; // totalStamp 기준
+    private static final int CERTIFIED_THRESHOLD = 10;
 
     @Transactional
     public Long createNoti(NotiCreateRequest req, Long userId) {
@@ -64,48 +69,50 @@ public class NotiService {
     }
 
 
+
     @Transactional(readOnly = true)
-    public List<NotiLogResponse> getNotiLogs(Long userId) {
-        // 사장님 → 본인 가게 찾기
+    public PageResponse<NotiLogResponse> getNotiLogs(Long userId, Integer page, Integer size) {
+        // 사장님 가게
         Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
-        // 해당 가게의 모든 공지 조회
-        List<Noti> notis = notiRepository.findByStoreIdOrderByCreatedAtDesc(store.getId());
+        int p = (page == null || page < 0) ? 0 : page;
+        int s = (size == null || size <= 0) ? 9 : size;
 
-        return notis.stream()
+        Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Noti> notiPage = notiRepository.findByStoreId(store.getId(), pageable);
+
+        // 한 번에 읽음수 맵 생성 (재할당 없음 → effectively final)
+        List<Long> ids = notiPage.getContent().stream().map(Noti::getId).toList();
+        final Map<Long, Integer> readCountMap = ids.isEmpty()
+                ? Collections.emptyMap()
+                : notiRepository.countReadsByNotiIds(ids).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
+        var content = notiPage.getContent().stream()
                 .map(noti -> new NotiLogResponse(
                         noti.getId(),
                         noti.getTitle(),
                         noti.getTarget().name(),
                         noti.getTargetCount(),
-                        noti.getNotiRead().size(), // 열람 수 = 읽은 사용자 수
+                        readCountMap.getOrDefault(noti.getId(), 0), // 열람 수
                         noti.getCreatedAt(),
                         noti.getContent()
                 ))
                 .toList();
-    }
 
-
-    @Transactional(readOnly = true)
-    public NotiDetailResponse getUnreadNoti(Long userId, Long notiId) {
-        Noti noti = notiRepository.findById(notiId)
-                .orElseThrow(() -> new IllegalArgumentException("공지 없음"));
-
-        // 이미 읽었거나 대상이 아니면 null 반환
-        boolean alreadyRead = notiReadRepository.existsByUserIdAndNotiId(userId, notiId);
-        if (alreadyRead || !isTargetUser(noti, userId)) {
-            return null;
-        }
-
-        return new NotiDetailResponse(
-                noti.getId(),
-                noti.getTitle(),
-                noti.getContent(),
-                noti.getTarget(),
-                noti.getTargetCount(),
-                noti.getCreatedAt()
+        return new PageResponse<>(
+                content,
+                notiPage.getNumber(),
+                notiPage.getSize(),
+                notiPage.getTotalElements(),
+                notiPage.getTotalPages(),
+                notiPage.isFirst(),
+                notiPage.isLast()
         );
     }
 

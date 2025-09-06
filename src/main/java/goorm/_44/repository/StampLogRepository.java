@@ -2,6 +2,8 @@ package goorm._44.repository;
 
 import goorm._44.entity.StampAction;
 import goorm._44.entity.StampLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,10 +18,9 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
 
     List<StampLog> findTop20ByStamp_User_IdOrderByCreatedAtDesc(Long userId);
 
-    // 사장님 가게의 모든 로그 최신순
-    List<StampLog> findByStore_IdOrderByCreatedAtDesc(Long storeId);
+    // 기존 List -> Page 로 교체 (정렬은 Pageable에서 지정)
+    Page<StampLog> findByStore_Id(Long storeId, Pageable pageable);
 
-    // 특정 사용자가 특정 가게에서 남긴 특정 액션 횟수 (예: 쿠폰 사용 횟수)
     int countByStamp_User_IdAndStore_IdAndAction(Long userId, Long storeId, StampAction action);
 
     @Query("""
@@ -42,24 +43,7 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
             @Param("createdAt") LocalDateTime createdAt
     );
 
-//    @Query("SELECT COUNT(sl) FROM StampLog sl " +
-//            "WHERE sl.store.id = :storeId " +
-//            "AND DATE(sl.createdAt) = :date " +
-//            "AND sl.action IN :actions")
-//    int countByStoreAndDateAndActions(@Param("storeId") Long storeId,
-//                                      @Param("date") LocalDate date,
-//                                      @Param("actions") List<StampAction> actions);
-//
-//    @Query("SELECT COUNT(sl) FROM StampLog sl " +
-//            "WHERE sl.store.id\n = :storeId " +
-//            "AND DATE(sl.createdAt) = :date " +
-//            "AND sl.action = :action")
-//    int countByStoreAndDateAndAction(@Param("storeId") Long storeId,
-//                                     @Param("date") LocalDate date,
-//                                     @Param("action") StampAction action);
-
-
-    // ✅ 특정 가게, 특정 날짜, 여러 액션별 고유 유저 수
+    // ※ JPQL에서 DATE() 함수는 구현체 의존적이라, 필요시 function('date', sl.createdAt) 형태로 바꿔도 됨.
     @Query("""
         SELECT COUNT(DISTINCT sl.stamp.user.id)
         FROM StampLog sl
@@ -71,7 +55,6 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
                                                    @Param("date") LocalDate date,
                                                    @Param("actions") List<StampAction> actions);
 
-    // ✅ 특정 가게, 특정 날짜, 단일 액션별 고유 유저 수
     @Query("""
         SELECT COUNT(DISTINCT sl.stamp.user.id)
         FROM StampLog sl
