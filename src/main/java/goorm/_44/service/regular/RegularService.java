@@ -401,14 +401,14 @@ public class RegularService {
                             .orElse(null);
 
                     int availableStamp = (stamp != null) ? stamp.getAvailableStamp() : 0;
-
                     String storeImageUrl = toImageUrl(log.getStore().getImageKey());
 
                     return RecentStoreWithStampDto.builder()
                             .storeId(log.getStore().getId())
                             .storeName(log.getStore().getName())
-                            .storeImage(storeImageUrl) // ✅ URL로 내려줌 (필드명 유지)
+                            .storeImage(storeImageUrl)
                             .availableStamp(availableStamp)
+                            .lastVisitDate(log.getCreatedAt()) // ✅ 최근 방문일 추가
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -420,6 +420,7 @@ public class RegularService {
                 .recentStores(recentStores)
                 .build();
     }
+
 
 
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
