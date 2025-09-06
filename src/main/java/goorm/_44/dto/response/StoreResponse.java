@@ -8,6 +8,6 @@ public record StoreResponse(
         String phone,
         String address,
         String detailAddress,
-        Integer open,
-        Integer close
+        String open,
+        String close
 ) {}

@@ -37,10 +37,21 @@ public class StoreService {
                 ? null
                 : presignService.viewUrl(saved.getImageKey(), null).url();
 
+        // 👉 여기서 포맷 적용
+        String formattedPhone = formatPhone(saved.getPhone());
+        String openTime = formatTime(saved.getOpen());
+        String closeTime = formatTime(saved.getClose());
+
         return new StoreResponse(
-                saved.getId(),  saved.getName(), imageUrl, saved.getIntroduction(),
-                saved.getPhone(), saved.getAddress(), saved.getDetailAddress(),
-                saved.getOpen(), saved.getClose()
+                saved.getId(),
+                saved.getName(),
+                imageUrl,
+                saved.getIntroduction(),
+                formattedPhone,       // 포맷 적용된 번호
+                saved.getAddress(),
+                saved.getDetailAddress(),
+                openTime,             // HH:mm
+                closeTime             // HH:mm
         );
     }
 
@@ -58,17 +69,37 @@ public class StoreService {
                 ? null
                 : presignService.viewUrl(store.getImageKey(), null).url();
 
+        // 전화번호 포맷 (010-XXXX-XXXX)
+        String formattedPhone = formatPhone(store.getPhone());
+
+        // 오픈/클로즈 시간 포맷 (00:00)
+        String openTime = formatTime(store.getOpen());
+        String closeTime = formatTime(store.getClose());
+
         return new StoreResponse(
                 store.getId(),
                 store.getName(),
                 imageUrl,
                 store.getIntroduction(),
-                store.getPhone(),
+                formattedPhone,
                 store.getAddress(),
                 store.getDetailAddress(),
-                store.getOpen(),
-                store.getClose()
+                openTime,
+                closeTime
         );
+    }
+
+    private String formatPhone(String phone) {
+        if (phone == null || phone.length() != 11) return phone;
+        return phone.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+    }
+
+    private String formatTime(Integer time) {
+        if (time == null) return null;
+        // 930 -> 09:30, 0 -> 00:00, 30 -> 00:30
+        int hour = time / 100;
+        int minute = time % 100;
+        return String.format("%02d:%02d", hour, minute);
     }
 
 }
