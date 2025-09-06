@@ -16,38 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@Slf4j
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("")
 @Tag(name = "User-Kakao")
+@RestController
+@RequestMapping("/auth/kakao")
+@RequiredArgsConstructor
 public class KakaoLoginController {
-
     private final KakaoService kakaoService;
-    private final UserRepository userRepository; // UserRepository를 주입받아 사용
-    private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 제공자를 주입받아 사용
+    private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code) {
-        String accessTokenFromKakao = kakaoService.getAccessTokenFromKakao(code);
-        KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(accessTokenFromKakao);
+    @GetMapping
+    public ResponseEntity<Map<String, String>> exchange(@RequestParam String code) {
+        String kakaoAccess = kakaoService.getAccessTokenFromKakao(code);
+        KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(kakaoAccess);
 
         String nickname = userInfo.getKakaoAccount().getProfile().getNickName();
-
-        // 닉네임 기준으로 사용자 조회 or 회원가입
         User user = userRepository.findByName(nickname)
                 .orElseGet(() -> userRepository.save(
-                        User.builder()
-                                .name(nickname)
-                                .password(String.valueOf(userInfo.getId()))
-                                .build()
+                        User.builder().name(nickname).password(String.valueOf(userInfo.getId())).build()
                 ));
 
-        // JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));
 
-        // 액세스 + 리프레시 토큰 반환
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
                 "refreshToken", refreshToken
