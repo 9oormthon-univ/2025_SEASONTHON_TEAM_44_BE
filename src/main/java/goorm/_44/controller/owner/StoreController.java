@@ -33,4 +33,13 @@ public class StoreController {
         Long userId = Long.parseLong(authentication.getName());
         return ResponseEntity.ok(storeService.getMyStore(userId));
     }
+
+    @GetMapping("/me/exists")
+    @Operation(summary = "가게 등록 여부 확인", description = "현재 로그인한 사장님이 가게를 등록했는지 여부를 반환합니다.")
+    public ApiResult<Boolean> hasMyStore(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        return ApiResult.success(storeService.hasStore(userId));
+    }
+
+
 }

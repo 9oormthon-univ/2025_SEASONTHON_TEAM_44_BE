@@ -102,4 +102,12 @@ public class StoreService {
         return String.format("%02d:%02d", hour, minute);
     }
 
+    @Transactional(readOnly = true)
+    public boolean hasStore(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return storeRepository.existsByUserId(userId);
+    }
+
 }

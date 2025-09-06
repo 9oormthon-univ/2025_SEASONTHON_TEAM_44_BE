@@ -153,7 +153,6 @@ public class RegularService {
 // 0~9만 반환되도록 변환
         int availableStamp = availableStamp1 % 10;
 
-
         // 이미지 URL
         String imageUrl = toImageUrl(store.getImageKey());
 
