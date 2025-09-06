@@ -115,12 +115,8 @@ public class RegularService {
 
                     int visitCount = (stamp.getTotalStamp() == null ? 0 : stamp.getTotalStamp());
                     String imageUrl = toImageUrl(store.getImageKey());
-                    // 🔽 기존: 누적 사용 가능 수 그대로
-                    // int available = (stamp.getAvailableStamp() == null ? 0 : stamp.getAvailableStamp());
+                    int available = (stamp.getAvailableStamp() == null ? 0 : stamp.getAvailableStamp());
 
-                    // 🔽 변경: 0~9만 반환되도록 변환
-                    int availableRaw = (stamp.getAvailableStamp() == null ? 0 : stamp.getAvailableStamp());
-                    int available = availableRaw % 10;
 
                     boolean hasNewNoti = notiRepository.findByStoreId(store.getId()).stream()
                             .anyMatch(noti -> isTargetUserByTotal(noti, userId)
@@ -148,10 +144,8 @@ public class RegularService {
 
 // 내 스탬프 찾기 (없으면 0 반환)
         Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, storeId).orElse(null);
-        int availableStamp1 = (stamp == null ? 0 : stamp.getAvailableStamp());
+        int availableStamp = (stamp == null ? 0 : stamp.getAvailableStamp());
 
-// 0~9만 반환되도록 변환
-        int availableStamp = availableStamp1 % 10;
 
         // 이미지 URL
         String imageUrl = toImageUrl(store.getImageKey());
