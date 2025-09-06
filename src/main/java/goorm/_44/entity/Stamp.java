@@ -3,6 +3,9 @@ package goorm._44.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -25,4 +28,7 @@ public class Stamp extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
+
+    @OneToMany(mappedBy = "stamp", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StampLog> log = new ArrayList<>();
 }
