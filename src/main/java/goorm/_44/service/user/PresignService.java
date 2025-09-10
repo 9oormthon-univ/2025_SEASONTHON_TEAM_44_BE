@@ -25,7 +25,7 @@ public class PresignService {
     @Value("${aws.s3.bucket}") private String bucket;
     @Value("${aws.s3.public:false}") private boolean publicReadable;
     @Value("${aws.s3.publicUrlBase:}") private String publicUrlBase;
-    @Value("${aws.s3.presignExpireSec:300}") private long presignExpireSec;
+    @Value("${aws.s3.presignExpireSec:600}") private long presignExpireSec;
 
     public PresignResponse presign(PresignRequest req) {
         String safe = (req.fileName() == null ? "file.bin" : req.fileName())

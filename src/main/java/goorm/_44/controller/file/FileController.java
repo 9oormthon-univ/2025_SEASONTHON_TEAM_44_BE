@@ -1,4 +1,4 @@
-package goorm._44.controller.user;
+package goorm._44.controller.file;
 
 import goorm._44.config.api.ApiResult;
 import goorm._44.dto.request.PresignRequest;
@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/owner/file")
+@RequestMapping("/api/files")
 @RequiredArgsConstructor
-@Tag(name = "User-File", description = "이미지 관련 API")
+@Tag(name = "File", description = "이미지 업로드 관련 API")
 public class FileController {
 
     private final PresignService presignService;

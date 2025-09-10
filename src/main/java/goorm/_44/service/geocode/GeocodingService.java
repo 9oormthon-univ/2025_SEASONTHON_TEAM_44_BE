@@ -1,4 +1,4 @@
-package goorm._44.service.map;
+package goorm._44.service.geocode;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Service
 public class GeocodingService {
@@ -23,8 +25,8 @@ public class GeocodingService {
         this.objectMapper = objectMapper;
     }
 
-    public Mono<String> getAddressFromCoordinates(double latitude, double longitude) {
-        Mono<String> result = this.webClient.get()
+    public Mono<Optional<String>> getAddressFromCoordinates(double latitude, double longitude) {
+        return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("latlng", latitude + "," + longitude)
                         .queryParam("key", apiKey)
@@ -32,8 +34,7 @@ public class GeocodingService {
                         .build())
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(this::parseSpecificAddress); // 수정된 파싱 로직 호출
-        return result;
+                .map(response -> Optional.ofNullable(parseSpecificAddress(response)));
     }
 
     private String parseSpecificAddress(String jsonResponse) {
@@ -48,6 +49,8 @@ public class GeocodingService {
                     String gu = null;
                     String city = null;
 
+
+                    // TODO : [geocode] response 결정 - city/gu/dong 반환 범위
                     for (JsonNode component : addressComponents) {
                         JsonNode types = component.path("types");
                         for (JsonNode type : types) {
@@ -69,6 +72,6 @@ public class GeocodingService {
         } catch (Exception e) {
             System.err.println("JSON 파싱 오류: " + e.getMessage());
         }
-        return "주소 정보를 찾을 수 없습니다.";
+        return null;
     }
 }
