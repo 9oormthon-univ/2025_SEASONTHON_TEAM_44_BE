@@ -64,17 +64,6 @@ public class RegularController {
         return ApiResult.success(regularService.getStoreDetail(userId, storeId));
     }
 
-    @PostMapping("/noti/read")
-    @Operation(summary = "공지 읽음 처리", description = "요청한 공지를 읽음 처리합니다.")
-    public ApiResult<String> markNotiAsRead(
-            @RequestBody NotiReadRequest request,
-            Authentication authentication
-    ) {
-        Long userId = Long.parseLong(authentication.getName());
-        regularService.readNoti(userId, request.getNotiId());
-        return ApiResult.success("success");
-    }
-
     // 만약 단골 등록(Stamp) 엔티티가 없으면 서비스에서 예외 발생하도록 설계
     @PostMapping("/store/stamp")
     @Operation(summary = "스탬프 적립", description = "해당 가게에 스탬프를 1회 적립합니다.")

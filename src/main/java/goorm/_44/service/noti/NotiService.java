@@ -1,14 +1,11 @@
-package goorm._44.service.owner;
+package goorm._44.service.noti;
 
 import goorm._44.config.exception.CustomException;
 import goorm._44.config.exception.ErrorCode;
 import goorm._44.dto.request.NotiCreateRequest;
 import goorm._44.dto.response.PageResponse;
 import goorm._44.dto.response.NotiLogResponse;
-import goorm._44.entity.Noti;
-import goorm._44.entity.NotiTarget;
-import goorm._44.entity.Store;
-import goorm._44.entity.User;
+import goorm._44.entity.*;
 import goorm._44.repository.NotiReadRepository;
 import goorm._44.repository.NotiRepository;
 import goorm._44.repository.StampRepository;
@@ -36,54 +33,68 @@ public class NotiService {
 
     private static final int CERTIFIED_THRESHOLD = 10;
 
+
+    /**
+     * [사장] 공지 등록
+     */
     @Transactional
     public Long createNoti(NotiCreateRequest req, Long userId) {
-        // 1) 유저 검증
+        // 1. 사장 검증
+        // TODO : 사장 검증 로직 필요
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 2) 유저가 등록한 가게 찾기
+        // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
         Long storeId = store.getId();
 
-        // 3) 대상자 수 계산
+        // 3. 대상자 수 계산
         int targetCount = switch (req.target()) {
             case ALL -> stampRepository.countByStoreId(storeId);
             case CERTIFIED -> stampRepository.countByStoreIdAndTotalStampGreaterThanEqual(storeId, CERTIFIED_THRESHOLD);
             case BASIC -> stampRepository.countByStoreIdAndTotalStampLessThan(storeId, CERTIFIED_THRESHOLD);
         };
 
-        // 4) 저장
+        // 4. 저장
         Noti noti = Noti.builder()
                 .title(req.title())
                 .content(req.content())
                 .target(req.target())
                 .targetCount(targetCount)
-                .store(store) // 실제 Store 엔티티 연결
+                .store(store)
                 .build();
 
         return notiRepository.save(noti).getId();
     }
 
 
-
+    /**
+     * [사장] 공지 로그 조회
+     */
     @Transactional(readOnly = true)
     public PageResponse<NotiLogResponse> getNotiLogs(Long userId, Integer page, Integer size) {
-        // 사장님 가게
+        // 1. 사장 검증
+        // TODO : 사장 검증 로직 필요
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
+        // 3. 페이지 기본값 처리 / 최신순 정렬
         int p = (page == null || page < 0) ? 0 : page;
         int s = (size == null || size <= 0) ? 9 : size;
-
         Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // 4. 공지 페이지 조회
         Page<Noti> notiPage = notiRepository.findByStoreId(store.getId(), pageable);
 
-        // 한 번에 읽음수 맵 생성 (재할당 없음 → effectively final)
+        // 5. 공지별 읽은 수 조회 후 Map 변환
         List<Long> ids = notiPage.getContent().stream().map(Noti::getId).toList();
         final Map<Long, Integer> readCountMap = ids.isEmpty()
                 ? Collections.emptyMap()
@@ -99,7 +110,7 @@ public class NotiService {
                         noti.getTitle(),
                         noti.getTarget().name(),
                         noti.getTargetCount(),
-                        readCountMap.getOrDefault(noti.getId(), 0), // 열람 수
+                        readCountMap.getOrDefault(noti.getId(), 0),
                         noti.getCreatedAt(),
                         noti.getContent()
                 ))
@@ -116,15 +127,23 @@ public class NotiService {
         );
     }
 
-    private boolean isTargetUser(Noti noti, Long userId) {
-        if (noti.getTarget() == NotiTarget.ALL) return true;
+    @Transactional
+    public Long readNoti(Long userId, Long notiId) {
+        // 1. 단골 검증
+        // TODO : 사장 검증 로직 필요
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        int totalStamp = stampRepository.findTotalStampByUserAndStore(userId, noti.getStore().getId());
+        Noti noti = notiRepository.findById(notiId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTI_NOT_FOUND));
 
-        return switch (noti.getTarget()) {
-            case BASIC -> totalStamp < CERTIFIED_THRESHOLD;
-            case CERTIFIED -> totalStamp >= CERTIFIED_THRESHOLD;
-            default -> false;
-        };
+        // 2. 공지 읽기
+        NotiRead notiRead = NotiRead.builder()
+                .user(user)
+                .noti(noti)
+                .build();
+
+        notiReadRepository.save(notiRead);
+        return notiId;
     }
 }

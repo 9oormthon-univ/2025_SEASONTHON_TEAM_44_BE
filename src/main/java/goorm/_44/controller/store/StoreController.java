@@ -28,7 +28,7 @@ public class StoreController {
     }
 
     @PostMapping
-    @Operation(summary = "[사장] 가게 등록", description = "사장님이 가게 정보를 등록합니다.")
+    @Operation(summary = "[사장] 가게 등록", description = "사용자의 가게 정보를 등록합니다.")
     public ApiResult<IdResponse> createStore(
             @RequestBody StoreCreateRequest req,
             Authentication authentication

@@ -39,43 +39,6 @@ public class RegularService {
         return (imageKey == null) ? null : presignService.viewUrl(imageKey, null).url();
     }
 
-//    @Transactional
-//    public boolean isRegular(Long userId, Long storeId) {
-//        return stampRepository.existsByUserIdAndStoreId(userId, storeId);
-//    }
-
-//    @Transactional
-//    public void registerRegular(Long userId, Long storeId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-//        Store store = storeRepository.findById(storeId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
-//
-//        // 이미 단골이면 예외
-//        boolean exists = stampRepository.existsByUserIdAndStoreId(userId, storeId);
-//        if (exists) {
-//            throw new CustomException(ErrorCode.ALREADY_REGULAR);
-//        }
-//
-//        // 1. Stamp 생성
-//        Stamp stamp = Stamp.builder()
-//                .availableStamp(1)
-//                .totalStamp(1)
-//                .user(user)
-//                .store(store)
-//                .build();
-//        stampRepository.save(stamp);
-//
-//        // 2. StampLog 생성 (행동: 신규 등록)
-//        StampLog log = StampLog.builder()
-//                .stamp(stamp)
-//                .store(store)
-//                .action(StampAction.REGISTER)
-//                .build();
-//        stampLogRepository.save(log);
-//    }
-
-
     @Transactional
     public List<RegularMainResponse> getRegularStores(Long userId) {
         User user = userRepository.findById(userId)
@@ -254,25 +217,6 @@ public class RegularService {
                 .action(StampAction.VISIT)
                 .build();
         stampLogRepository.save(stampLog);
-    }
-
-    //    regular/noti/read/{stroeId} 공지 읽기. POST
-    public void readNoti(Long userId, Long notiId) {
-        // 1. User와 Noti 엔티티를 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        Noti noti = notiRepository.findById(notiId)
-                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다."));
-
-        // 2. NotiRead 엔티티 생성
-        NotiRead notiRead = NotiRead.builder()
-                .user(user)
-                .noti(noti) // 필드명 NotiId 그대로 사용
-                .build();
-
-        // 3. NotiRead 엔티티 저장
-        notiReadRepository.save(notiRead);
     }
 
 

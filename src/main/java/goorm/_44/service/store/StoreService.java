@@ -9,7 +9,6 @@ import goorm._44.repository.*;
 import goorm._44.config.exception.ErrorCode;
 
 import goorm._44.service.file.PresignService;
-import goorm._44.service.owner.StampService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +106,7 @@ public class StoreService {
         userRepository.findById(ownerUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 2. 자신의 가게 찾기
+        // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(ownerUserId).stream()
                 .findFirst()
                 .orElse(null);
