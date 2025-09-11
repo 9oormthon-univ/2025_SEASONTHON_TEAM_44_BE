@@ -6,7 +6,7 @@ import goorm._44.config.exception.ErrorCode;
 import goorm._44.dto.response.*;
 import goorm._44.entity.*;
 import goorm._44.repository.*;
-import goorm._44.service.user.PresignService;
+import goorm._44.service.file.PresignService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,41 +39,41 @@ public class RegularService {
         return (imageKey == null) ? null : presignService.viewUrl(imageKey, null).url();
     }
 
-    @Transactional
-    public boolean isRegular(Long userId, Long storeId) {
-        return stampRepository.existsByUserIdAndStoreId(userId, storeId);
-    }
+//    @Transactional
+//    public boolean isRegular(Long userId, Long storeId) {
+//        return stampRepository.existsByUserIdAndStoreId(userId, storeId);
+//    }
 
-    @Transactional
-    public void registerRegular(Long userId, Long storeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
-
-        // 이미 단골이면 예외
-        boolean exists = stampRepository.existsByUserIdAndStoreId(userId, storeId);
-        if (exists) {
-            throw new CustomException(ErrorCode.ALREADY_REGULAR);
-        }
-
-        // 1. Stamp 생성
-        Stamp stamp = Stamp.builder()
-                .availableStamp(1)
-                .totalStamp(1)
-                .user(user)
-                .store(store)
-                .build();
-        stampRepository.save(stamp);
-
-        // 2. StampLog 생성 (행동: 신규 등록)
-        StampLog log = StampLog.builder()
-                .stamp(stamp)
-                .store(store)
-                .action(StampAction.REGISTER)
-                .build();
-        stampLogRepository.save(log);
-    }
+//    @Transactional
+//    public void registerRegular(Long userId, Long storeId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//        Store store = storeRepository.findById(storeId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+//
+//        // 이미 단골이면 예외
+//        boolean exists = stampRepository.existsByUserIdAndStoreId(userId, storeId);
+//        if (exists) {
+//            throw new CustomException(ErrorCode.ALREADY_REGULAR);
+//        }
+//
+//        // 1. Stamp 생성
+//        Stamp stamp = Stamp.builder()
+//                .availableStamp(1)
+//                .totalStamp(1)
+//                .user(user)
+//                .store(store)
+//                .build();
+//        stampRepository.save(stamp);
+//
+//        // 2. StampLog 생성 (행동: 신규 등록)
+//        StampLog log = StampLog.builder()
+//                .stamp(stamp)
+//                .store(store)
+//                .action(StampAction.REGISTER)
+//                .build();
+//        stampLogRepository.save(log);
+//    }
 
 
     @Transactional

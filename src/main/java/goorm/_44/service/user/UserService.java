@@ -5,6 +5,7 @@ import goorm._44.config.exception.ErrorCode;
 import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
+import goorm._44.service.file.PresignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

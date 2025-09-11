@@ -1,4 +1,4 @@
-package goorm._44.service.user;
+package goorm._44.service.file;
 
 import goorm._44.dto.request.PresignRequest;
 import goorm._44.dto.response.PresignResponse;

@@ -24,27 +24,27 @@ public class RegularController {
 
     private final RegularService regularService;
 
-    @GetMapping("/{storeId}")
-    @Operation(summary = "단골 여부 확인", description = "사용자가 특정 가게의 단골인지 확인합니다.")
-    public ApiResult<Boolean> checkRegular(
-            @PathVariable Long storeId,
-            Authentication authentication
-    ) {
-        Long userId = Long.parseLong(authentication.getName());
-        boolean isRegular = regularService.isRegular(userId, storeId);
-        return ApiResult.success(isRegular);
-    }
-
-    @PostMapping("/{storeId}")
-    @Operation(summary = "단골 등록", description = "사용자가 특정 가게의 단골이 됩니다.")
-    public ApiResult<String> registerRegular(
-            @PathVariable Long storeId,
-            Authentication authentication
-    ) {
-        Long userId = Long.parseLong(authentication.getName());
-        regularService.registerRegular(userId, storeId);
-        return ApiResult.success("단골 등록이 완료되었습니다.");
-    }
+//    @GetMapping("/{storeId}")
+//    @Operation(summary = "단골 여부 확인", description = "사용자가 특정 가게의 단골인지 확인합니다.")
+//    public ApiResult<Boolean> checkRegular(
+//            @PathVariable Long storeId,
+//            Authentication authentication
+//    ) {
+//        Long userId = Long.parseLong(authentication.getName());
+//        boolean isRegular = regularService.isRegular(userId, storeId);
+//        return ApiResult.success(isRegular);
+//    }
+//
+//    @PostMapping("/{storeId}")
+//    @Operation(summary = "단골 등록", description = "사용자가 특정 가게의 단골이 됩니다.")
+//    public ApiResult<String> registerRegular(
+//            @PathVariable Long storeId,
+//            Authentication authentication
+//    ) {
+//        Long userId = Long.parseLong(authentication.getName());
+//        regularService.registerRegular(userId, storeId);
+//        return ApiResult.success("단골 등록이 완료되었습니다.");
+//    }
 
     @GetMapping("/main")
     @Operation(summary = "단골 가게 메인 조회", description = "내 단골 가게 목록과 새 공지 여부를 조회합니다. 스탬프 임박순으로 조회됩니다.")
