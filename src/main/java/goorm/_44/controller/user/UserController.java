@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "사용자 관련 API")
 public class UserController {
@@ -36,7 +36,7 @@ public class UserController {
         return ApiResult.success("위치 등록이 완료되었습니다.");
     }
 
-    @GetMapping("/me/profile")
+    @GetMapping("/me/simple")
     @Operation(summary = "내 정보 간단 조회", description = "현재 로그인한 사용자의 이름, 프로필 이미지, 지역을 조회합니다.")
     public ApiResult<UserSimpleResponse> getMyInfo(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
