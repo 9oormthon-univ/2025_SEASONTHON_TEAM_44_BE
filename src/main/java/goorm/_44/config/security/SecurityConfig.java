@@ -1,6 +1,6 @@
 package goorm._44.config.security;
 
-import goorm._44.utils.JwtTokenProvider;
+import goorm._44.common.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

@@ -1,6 +1,6 @@
 package goorm._44.controller.geocode;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.response.GeocodeResponse;
 import goorm._44.service.geocode.GeocodingService;
 import io.swagger.v3.oas.annotations.Operation;

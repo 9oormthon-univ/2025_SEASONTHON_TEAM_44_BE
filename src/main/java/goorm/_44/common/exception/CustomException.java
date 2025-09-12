@@ -1,4 +1,4 @@
-package goorm._44.config.exception;
+package goorm._44.common.exception;
 
 import lombok.Getter;
 

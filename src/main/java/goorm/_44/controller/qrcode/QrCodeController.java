@@ -1,4 +1,4 @@
-package goorm._44.controller.owner;
+package goorm._44.controller.qrcode;
 
 
 import com.google.zxing.BarcodeFormat;
@@ -7,9 +7,9 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 
-import goorm._44.config.api.ApiResult;
-import goorm._44.config.exception.CustomException;
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.api.ApiResult;
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.Base64;
 
 @RestController
-@RequestMapping("/owner/qr")
-@Tag(name = "Owner-QR", description = "QR 관련 API")
+@RequestMapping("/api/qrcode")
+@Tag(name = "QR", description = "QR 관련 API")
 public class QrCodeController {
 
     @GetMapping

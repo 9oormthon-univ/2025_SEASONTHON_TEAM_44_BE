@@ -1,6 +1,6 @@
-package goorm._44.config.api;
+package goorm._44.common.api;
 
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

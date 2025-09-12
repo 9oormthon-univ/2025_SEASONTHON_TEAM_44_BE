@@ -1,6 +1,6 @@
 package goorm._44.controller.user;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.UserLocationRequest;
 import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.service.user.UserService;
@@ -36,7 +36,7 @@ public class UserController {
         return ApiResult.success("위치 등록이 완료되었습니다.");
     }
 
-    @GetMapping("/me/simple")
+    @GetMapping("/me/profile")
     @Operation(summary = "내 정보 간단 조회", description = "현재 로그인한 사용자의 이름, 프로필 이미지, 지역을 조회합니다.")
     public ApiResult<UserSimpleResponse> getMyInfo(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());

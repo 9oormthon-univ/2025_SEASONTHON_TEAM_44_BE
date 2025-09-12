@@ -1,12 +1,12 @@
 package goorm._44.service.store;
 
-import goorm._44.config.exception.CustomException;
+import goorm._44.common.exception.CustomException;
 import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.StoreResponse;
 import goorm._44.entity.*;
 import goorm._44.repository.*;
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.exception.ErrorCode;
 
 import goorm._44.service.file.PresignService;
 import lombok.RequiredArgsConstructor;
@@ -210,7 +210,7 @@ public class StoreService {
      * [단골] 단골 여부 확인
      */
     @Transactional(readOnly = true)
-    public boolean isRegular(Long userId, Long storeId) {
+    public boolean hasStamp(Long userId, Long storeId) {
         return stampRepository.existsByUserIdAndStoreId(userId, storeId);
     }
 
@@ -219,19 +219,20 @@ public class StoreService {
      * [단골] 단골 등록
      */
     @Transactional
-    public Long registerRegular(Long userId, Long storeId) {
+    public Long registerStamp(Long userId, Long storeId) {
+        // 1. 단골 검증
+        // TODO : 단골 검증 로직 필요(단골 계정인지)
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
-        // 이미 단골이면 예외
+        // 2. 이미 단골이면 예외
         boolean exists = stampRepository.existsByUserIdAndStoreId(userId, storeId);
         if (exists) {
             throw new CustomException(ErrorCode.ALREADY_REGULAR);
         }
 
-        // 1. Stamp 생성
         Stamp stamp = Stamp.builder()
                 .availableStamp(1)
                 .totalStamp(1)
@@ -240,7 +241,6 @@ public class StoreService {
                 .build();
         Stamp saved = stampRepository.save(stamp);
 
-        // 2. StampLog 생성 (행동: 신규 등록)
         StampLog log = StampLog.builder()
                 .stamp(saved)
                 .store(store)
@@ -249,6 +249,34 @@ public class StoreService {
         stampLogRepository.save(log);
 
         return saved.getId();
+    }
+
+
+    /**
+     * [단골] 스탬프 찍기
+     */
+    @Transactional
+    public Long addStamp(Long userId, Long storeId) {
+        // 1. 단골 검증
+        // TODO : 단골 검증 로직 필요
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, storeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAMP_NOT_FOUND));
+
+        // 2. Stamp 엔티티의 availableStamp와 totalStamp 증가
+        stamp.setAvailableStamp(stamp.getAvailableStamp() + 1);
+        stamp.setTotalStamp(stamp.getTotalStamp() + 1);
+        stampRepository.save(stamp);
+
+        StampLog stampLog = StampLog.builder()
+                .stamp(stamp)
+                .store(stamp.getStore())
+                .action(StampAction.VISIT)
+                .build();
+        stampLogRepository.save(stampLog);
+
+        return stamp.getId();
     }
 
 

@@ -1,8 +1,7 @@
 package goorm._44.controller.noti;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.NotiCreateRequest;
-import goorm._44.dto.request.NotiReadRequest;
 import goorm._44.dto.response.IdResponse;
 import goorm._44.dto.response.NotiLogResponse;
 import goorm._44.dto.response.PageResponse;

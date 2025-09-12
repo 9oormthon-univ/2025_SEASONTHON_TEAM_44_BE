@@ -1,4 +1,4 @@
-package goorm._44.utils;
+package goorm._44.common.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

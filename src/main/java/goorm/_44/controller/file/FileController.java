@@ -1,6 +1,6 @@
 package goorm._44.controller.file;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.PresignRequest;
 import goorm._44.dto.response.PresignResponse;
 import goorm._44.service.file.PresignService;

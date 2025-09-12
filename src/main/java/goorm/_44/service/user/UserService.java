@@ -1,7 +1,7 @@
 package goorm._44.service.user;
 
-import goorm._44.config.exception.CustomException;
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
 import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;

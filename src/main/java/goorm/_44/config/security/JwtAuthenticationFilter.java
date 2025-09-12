@@ -1,6 +1,6 @@
 package goorm._44.config.security;
 
-import goorm._44.utils.JwtTokenProvider;
+import goorm._44.common.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

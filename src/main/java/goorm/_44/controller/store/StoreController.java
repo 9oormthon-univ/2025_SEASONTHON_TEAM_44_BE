@@ -1,6 +1,6 @@
 package goorm._44.controller.store;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.IdResponse;
@@ -9,7 +9,6 @@ import goorm._44.service.store.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Store", description = "가게 관련 API")
 public class StoreController {
     private final StoreService storeService;
+
 
     @GetMapping("/me/exists")
     @Operation(summary = "[사장] 가게 등록 여부 확인", description = "사용자의 가게 등록 여부를 확인합니다.")
@@ -47,7 +47,7 @@ public class StoreController {
     }
 
 
-    @GetMapping("/me/dashboard")
+    @GetMapping("/me/summary")
     @Operation(summary = "[사장] 내 대시보드 조회", description = "사용자의 가게 대시보드 데이터를 조회합니다.")
     public ApiResult<DashboardResponse> getMyDashboard(Authentication authentication) {
         Long ownerUserId = Long.parseLong(authentication.getName());
@@ -55,28 +55,40 @@ public class StoreController {
     }
 
 
+
+
     @GetMapping("/{storeId}/regular")
     @Operation(summary = "[단골] 단골 여부 확인", description = "사용자의 특정 가게 단골 여부를 확인합니다.")
-    public ApiResult<Boolean> isRegular(
+    public ApiResult<Boolean> hasStamp(
             @PathVariable Long storeId,
             Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        boolean isRegular = storeService.isRegular(userId, storeId);
+        boolean isRegular = storeService.hasStamp(userId, storeId);
         return ApiResult.success(isRegular);
     }
 
 
-    @PostMapping("/{storeId}/regular")
+    @PostMapping("/{storeId}/register")
     @Operation(summary = "[단골] 단골 등록", description = "사용자가 특정 가게의 단골로 등록됩니다.")
-    public ApiResult<IdResponse> registerRegular(
+    public ApiResult<IdResponse> registerStamp(
             @PathVariable Long storeId,
             Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        Long regularId = storeService.registerRegular(userId, storeId);
+        Long regularId = storeService.registerStamp(userId, storeId);
         return ApiResult.success(new IdResponse(regularId));
     }
 
 
+    @PostMapping("/{storeId}/visit")
+    @Operation(summary = "[단골] 스탬프 적립", description = "해당 가게에 스탬프를 1회 적립합니다.")
+    public ApiResult<IdResponse> addStamp(
+            @PathVariable Long storeId,
+            Authentication authentication
+    ) {
+        Long userId = Long.parseLong(authentication.getName());
+        Long stampId = storeService.addStamp(userId, storeId);
+        return ApiResult.success(new IdResponse(stampId));
+    }
 }

@@ -1,6 +1,6 @@
-package goorm._44.config.exception;
+package goorm._44.common.exception;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

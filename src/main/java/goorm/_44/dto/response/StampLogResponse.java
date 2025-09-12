@@ -2,7 +2,7 @@ package goorm._44.dto.response;
 
 import java.time.LocalDateTime;
 
-public record StampLogForOwnerResponse(
+public record StampLogResponse(
         LocalDateTime dateTime,
         String customerName,
         String action,     // "신규 등록" | "방문 적립" (현재 쿠폰 구분 불가)

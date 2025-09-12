@@ -1,4 +1,4 @@
-package goorm._44.config.api;
+package goorm._44.common.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

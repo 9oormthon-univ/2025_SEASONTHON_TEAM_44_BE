@@ -1,7 +1,7 @@
 package goorm._44.service.noti;
 
-import goorm._44.config.exception.CustomException;
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
 import goorm._44.dto.request.NotiCreateRequest;
 import goorm._44.dto.response.PageResponse;
 import goorm._44.dto.response.NotiLogResponse;
@@ -94,7 +94,6 @@ public class NotiService {
         // 4. 공지 페이지 조회
         Page<Noti> notiPage = notiRepository.findByStoreId(store.getId(), pageable);
 
-        // 5. 공지별 읽은 수 조회 후 Map 변환
         List<Long> ids = notiPage.getContent().stream().map(Noti::getId).toList();
         final Map<Long, Integer> readCountMap = ids.isEmpty()
                 ? Collections.emptyMap()
@@ -128,7 +127,7 @@ public class NotiService {
     }
 
     @Transactional
-    public Long readNoti(Long userId, Long notiId) {
+    public void readNoti(Long userId, Long notiId) {
         // 1. 단골 검증
         // TODO : 사장 검증 로직 필요
         User user = userRepository.findById(userId)
@@ -144,6 +143,5 @@ public class NotiService {
                 .build();
 
         notiReadRepository.save(notiRead);
-        return notiId;
     }
 }

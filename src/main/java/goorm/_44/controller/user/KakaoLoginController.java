@@ -1,11 +1,11 @@
 package goorm._44.controller.user;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.response.KakaoUserInfoResponse;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
 import goorm._44.service.user.KakaoService;
-import goorm._44.utils.JwtTokenProvider;
+import goorm._44.common.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
