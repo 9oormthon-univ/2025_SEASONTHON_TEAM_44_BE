@@ -36,14 +36,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // User 엔티티에 profileImageKey 필드가 있다고 가정
-        String profileImageUrl = (user.getProfileImageKey() == null)
-                ? null
-                : presignService.viewUrl(user.getProfileImageKey(), null).url();
-
         return new UserSimpleResponse(
                 user.getName(),
-                profileImageUrl,
+                user.getProfileImageUrl(),
                 user.getRegion()
         );
     }

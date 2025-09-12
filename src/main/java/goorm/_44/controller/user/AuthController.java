@@ -35,6 +35,10 @@ public class AuthController {
                                 .build()
                 ));
 
+        // 기존 유저도 로그인 시 프로필 갱신
+        user.setProfileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
+        userRepository.save(user);
+
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));
 

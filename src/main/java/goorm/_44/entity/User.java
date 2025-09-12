@@ -33,7 +33,7 @@ public class User extends BaseEntity {
     private String role; // "OWNER", "CUSTOMER"
 
     @Column
-    private String profileImageKey;
+    private String profileImageUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Store> store  = new ArrayList<>();
