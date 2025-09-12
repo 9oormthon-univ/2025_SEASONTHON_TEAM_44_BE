@@ -103,6 +103,7 @@ public class StampService {
 
                     return new StampLogResponse(
                             log.getCreatedAt(),
+                            log.getStamp().getUser().getId(),
                             log.getStamp().getUser().getName(),
                             action,
                             cumulative,
@@ -122,33 +123,69 @@ public class StampService {
         );
         }
 
+
+
+    /**
+     * [단골] 단골 가게 메인 조회
+     */
     @Transactional(readOnly = true)
-    public List<RegularMainResponse> getRegularStores(Long userId) {
+    public List<RegularMainResponse> getRegularStores(Long userId, String keyword, SortType sort) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<Stamp> stamps = stampRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         if (stamps.isEmpty()) return List.of();
 
-        // 1) 스탬프 임박순 정렬: (10 - (available % 10)) % 10  → 남은 개수(0~9)
-        //    남은 개수가 작을수록 앞, 동률이면 최근 방문일 최신순
-        stamps.sort(Comparator
-                .comparingInt((Stamp s) -> {
-                    int available = s.getAvailableStamp() == null ? 0 : s.getAvailableStamp();
-                    return (10 - (available % 10)) % 10; // 0~9 (0=딱 쿠폰 발급 직후 → 가장 안 임박)
-                })
-                .thenComparing((Stamp s) -> {
-                    // 최근 방문일 (없으면 MIN으로)
-                    LocalDateTime last = s.getStore().getLog().stream()
+        if (keyword != null && !keyword.isBlank()) {
+            stamps = stamps.stream()
+                    .filter(stamp -> stamp.getStore().getName().contains(keyword))
+                    .toList();
+        }
+
+        Comparator<Stamp> comparator;
+        switch (sort) {
+
+            // STAMP
+            // 남은 스탬프가 적을수록 앞에 오도록 정렬
+            // 남은 스탬프가 같으면, 최근 방문일이 최신인 순으로.
+            case STAMP -> {
+                comparator = Comparator
+                        .comparingInt((Stamp s) -> {
+                            int available = s.getAvailableStamp() == null ? 0 : s.getAvailableStamp();
+                            return (10 - (available % 10)) % 10;
+                        })
+                        .thenComparing((Stamp s) -> {
+                            LocalDateTime last = s.getStore().getLog().stream()
+                                    .filter(log -> log.getStamp().getUser().getId().equals(userId))
+                                    .map(StampLog::getCreatedAt)
+                                    .max(LocalDateTime::compareTo)
+                                    .orElse(LocalDateTime.MIN);
+                            return last;
+                        }, Comparator.reverseOrder());
+            }
+
+            // OLDEST
+            // 단골 등록된 시간이 오래된 순서 (옛날부터 단골인 가게 → 최근 등록 가게)
+            case OLDEST -> comparator = Comparator.comparing(Stamp::getCreatedAt);
+
+            // NEWEST
+            // 단골 등록된 시간이 최신인 순서 (가장 최근에 등록한 단골 가게부터)
+            case NEWEST -> comparator = Comparator.comparing(Stamp::getCreatedAt).reversed();
+
+            // LAST_VISIT
+            // 마지막으로 방문한 시점이 최신인 가게부터 보여줌
+            case LAST_VISIT -> comparator = Comparator.comparing((Stamp s) ->
+                    s.getStore().getLog().stream()
                             .filter(log -> log.getStamp().getUser().getId().equals(userId))
                             .map(StampLog::getCreatedAt)
                             .max(LocalDateTime::compareTo)
-                            .orElse(LocalDateTime.MIN);
-                    return last;
-                }, Comparator.reverseOrder())
-        );
+                            .orElse(LocalDateTime.MIN)
+            ).reversed();
+            default -> comparator = Comparator.comparing(Stamp::getCreatedAt).reversed();
+        }
 
-        // 2) 매핑
+        stamps = stamps.stream().sorted(comparator).toList();
+
         return stamps.stream()
                 .map(stamp -> {
                     Store store = stamp.getStore();
@@ -162,7 +199,6 @@ public class StampService {
                     int visitCount = (stamp.getTotalStamp() == null ? 0 : stamp.getTotalStamp());
                     String imageUrl = toImageUrl(store.getImageKey());
                     int available = (stamp.getAvailableStamp() == null ? 0 : stamp.getAvailableStamp());
-
 
                     boolean hasNewNoti = notiRepository.findByStoreId(store.getId()).stream()
                             .anyMatch(noti -> isTargetUserByTotal(noti, userId)
@@ -181,6 +217,10 @@ public class StampService {
                 .toList();
     }
 
+
+    /**
+     * [단골] 단골 가게 상세 조회
+     */
     @Transactional(readOnly = true)
     public StoreDetailResponse getStoreDetail(Long userId, Long storeId) {
         User user = userRepository.findById(userId)
