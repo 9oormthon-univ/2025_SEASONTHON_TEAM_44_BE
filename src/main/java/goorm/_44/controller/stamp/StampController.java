@@ -2,6 +2,8 @@ package goorm._44.controller.stamp;
 
 import goorm._44.common.api.ApiResult;
 import goorm._44.dto.response.*;
+import goorm._44.entity.SortType;
+import goorm._44.entity.StampAction;
 import goorm._44.service.stamp.StampService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,24 +27,44 @@ public class StampController {
     @Operation(
             summary = "[사장] 방문 적립 로그 조회",
             description = "사용자 가게의 방문 및 적립 로그를 조회합니다. page는 0부터 시작합니다."
+
     )
     public ApiResult<PageResponse<StampLogResponse>> getStampLogs(
             Authentication authentication,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String customerName,   // 손님 이름 검색
+            @RequestParam(required = false) StampAction actionType // 방문/적립/쿠폰 사용 등
+
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        return ApiResult.success(stampService.getStampLogs(userId, page, size));
+        return ApiResult.success(
+                stampService.getStampLogs(userId, page, size, customerName, actionType)
+        );
     }
 
 
 
 
     @GetMapping("/me/main")
-    @Operation(summary = "[단골] 단골 가게 메인 조회", description = "내 단골 가게 목록과 새 공지 여부를 조회합니다. 스탬프 임박순으로 조회됩니다.")
-    public ApiResult<RegularMainListResponse> getMyRegularStores(Authentication authentication) {
+    @Operation(
+            summary = "[단골] 단골 가게 메인 조회",
+            description = """
+        내 단골 가게 목록과 새 공지 여부를 조회합니다.<br>
+        정렬 기준:<br>
+        1) STAMP (스탬프 임박순)<br>
+        2) OLDEST (오래된 등록순)<br>
+        3) NEWEST (최신 등록순)<br>
+        4) LAST_VISIT (최근 방문순)<br>
+        """
+    )
+    public ApiResult<RegularMainListResponse> getMyRegularStores(
+            Authentication authentication,
+            @RequestParam(required = false) String keyword,      // 가게명 검색
+            @RequestParam(defaultValue = "NEWEST") SortType sort // 정렬 방식 (기본: 최신 등록순)
+    ) {
         Long userId = Long.parseLong(authentication.getName());
-        List<RegularMainResponse> stores = stampService.getRegularStores(userId);
+        List<RegularMainResponse> stores = stampService.getRegularStores(userId, keyword, sort);
         return ApiResult.success(new RegularMainListResponse(stores.size(), stores));
     }
 

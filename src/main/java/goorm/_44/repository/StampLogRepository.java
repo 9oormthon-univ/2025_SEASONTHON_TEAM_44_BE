@@ -18,8 +18,15 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
 
     List<StampLog> findTop20ByStamp_User_IdOrderByCreatedAtDesc(Long userId);
 
-    // 기존 List -> Page 로 교체 (정렬은 Pageable에서 지정)
-    Page<StampLog> findByStore_Id(Long storeId, Pageable pageable);
+    Page<StampLog> findByStoreId(Long storeId, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndAction(Long storeId, StampAction action, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndStampUserNameContaining(Long storeId, String name, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndStampUserNameContainingAndAction(
+            Long storeId, String name, StampAction action, Pageable pageable
+    );
 
     int countByStamp_User_IdAndStore_IdAndAction(Long userId, Long storeId, StampAction action);
 
