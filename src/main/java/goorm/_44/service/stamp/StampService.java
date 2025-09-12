@@ -40,7 +40,9 @@ public class StampService {
      * [사장] 방문 적립 로그 조회
      */
     @Transactional(readOnly = true)
-    public PageResponse<StampLogResponse> getStampLogs(Long userId, Integer page, Integer size) {
+    public PageResponse<StampLogResponse> getStampLogs(
+            Long userId, Integer page, Integer size, String customerName, StampAction actionType
+    ) {
         // 1. 사장 검증
         // TODO : 사장 검증 로직 필요
         userRepository.findById(userId)
@@ -57,18 +59,27 @@ public class StampService {
         int s = (size == null || size <= 0) ? 9 : size;
         Pageable pageable = PageRequest.of(p, s, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // 4. 방문 적립 페이지 조회
-        Page<StampLog> stampLogPage = stampLogRepository.findByStore_Id(storeId, pageable);
+        // 4. 조건별 조회
+        Page<StampLog> stampLogPage;
+        if (customerName != null && !customerName.isBlank() && actionType != null) {
+            stampLogPage = stampLogRepository.findByStoreIdAndStampUserNameContainingAndAction(
+                    storeId, customerName, actionType, pageable);
+        } else if (customerName != null && !customerName.isBlank()) {
+            stampLogPage = stampLogRepository.findByStoreIdAndStampUserNameContaining(
+                    storeId, customerName, pageable);
+        } else if (actionType != null) {
+            stampLogPage = stampLogRepository.findByStoreIdAndAction(
+                    storeId, actionType, pageable);
+        } else {
+            stampLogPage = stampLogRepository.findByStoreId(storeId, pageable);
+        }
+
 
         List<StampLogResponse> content = stampLogPage.getContent().stream()
                 .map(log -> {
                     Long customerId = log.getStamp().getUser().getId();
+                    int cumulative = stampLogRepository.calculateCumulative(customerId, storeId, log.getCreatedAt());
 
-                    // 누적 스탬프 수 계산
-                    int cumulative = stampLogRepository
-                            .calculateCumulative(customerId, storeId, log.getCreatedAt());
-
-                    // 액션/노트 변환
                     String action;
                     String note = null;
                     switch (log.getAction()) {
@@ -82,20 +93,17 @@ public class StampService {
                         }
                         case COUPON -> {
                             action = "쿠폰 사용";
-                            int couponCount = stampLogRepository
-                                    .countByStamp_User_IdAndStore_IdAndAction(
-                                            customerId, storeId, StampAction.COUPON
-                                    );
+                            int couponCount = stampLogRepository.countByStamp_User_IdAndStore_IdAndAction(
+                                    customerId, storeId, StampAction.COUPON
+                            );
                             note = "쿠폰 " + couponCount + "번째 사용";
                         }
                         default -> action = "기타";
                     }
 
-                    String customerName = log.getStamp().getUser().getName();
-
                     return new StampLogResponse(
                             log.getCreatedAt(),
-                            customerName,
+                            log.getStamp().getUser().getName(),
                             action,
                             cumulative,
                             note
@@ -112,8 +120,7 @@ public class StampService {
                 stampLogPage.isFirst(),
                 stampLogPage.isLast()
         );
-    }
-
+        }
 
     @Transactional(readOnly = true)
     public List<RegularMainResponse> getRegularStores(Long userId) {

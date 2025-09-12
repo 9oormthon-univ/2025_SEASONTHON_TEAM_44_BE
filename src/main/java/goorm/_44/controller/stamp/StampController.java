@@ -2,6 +2,7 @@ package goorm._44.controller.stamp;
 
 import goorm._44.common.api.ApiResult;
 import goorm._44.dto.response.*;
+import goorm._44.entity.StampAction;
 import goorm._44.service.stamp.StampService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,14 +26,20 @@ public class StampController {
     @Operation(
             summary = "[사장] 방문 적립 로그 조회",
             description = "사용자 가게의 방문 및 적립 로그를 조회합니다. page는 0부터 시작합니다."
+
     )
     public ApiResult<PageResponse<StampLogResponse>> getStampLogs(
             Authentication authentication,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String customerName,   // 손님 이름 검색
+            @RequestParam(required = false) StampAction actionType // 방문/적립/쿠폰 사용 등
+
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        return ApiResult.success(stampService.getStampLogs(userId, page, size));
+        return ApiResult.success(
+                stampService.getStampLogs(userId, page, size, customerName, actionType)
+        );
     }
 
 
