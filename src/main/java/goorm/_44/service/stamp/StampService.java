@@ -44,9 +44,7 @@ public class StampService {
             Long userId, Integer page, Integer size, String customerName, StampAction actionType
     ) {
         // 1. 사장 검증
-        // TODO : 사장 검증 로직 필요
-        userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
@@ -130,8 +128,7 @@ public class StampService {
      */
     @Transactional(readOnly = true)
     public List<RegularMainResponse> getRegularStores(Long userId, String keyword, SortType sort) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = validateRegular(userId);
 
         List<Stamp> stamps = stampRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         if (stamps.isEmpty()) return List.of();
@@ -223,8 +220,8 @@ public class StampService {
      */
     @Transactional(readOnly = true)
     public StoreDetailResponse getStoreDetail(Long userId, Long storeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = validateRegular(userId);
+
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
@@ -273,6 +270,9 @@ public class StampService {
      */
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage(Long userId) {
+
+        User user = validateRegular(userId);
+
         // 1) 단골 가게 수
         int storeCount = stampRepository.countByUserId(userId);
 
@@ -325,6 +325,9 @@ public class StampService {
      */
     @Transactional(readOnly = true)
     public List<CouponResponse> getCoupons(Long userId) {
+
+        User user = validateRegular(userId);
+
         List<Stamp> stamps = stampRepository.findByUserId(userId);
         List<CouponResponse> result = new ArrayList<>();
 
@@ -354,6 +357,9 @@ public class StampService {
      */
     @Transactional
     public void useStamp(Long userId, Long stampId) {
+
+        User user = validateRegular(userId);
+
         // 1. Stamp 조회 (내 스탬프인지 검증)
         Stamp stamp = stampRepository.findByIdAndUserId(stampId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAMP_NOT_FOUND));
@@ -418,5 +424,27 @@ public class StampService {
             case CERTIFIED -> totalStamp >= 10;
             default -> false;
         };
+    }
+
+    private User validateOwner(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.OWNER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
+    }
+
+    private User validateRegular(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.REGULAR) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
     }
 }

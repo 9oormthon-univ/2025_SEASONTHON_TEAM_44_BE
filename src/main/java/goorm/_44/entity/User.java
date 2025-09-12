@@ -21,16 +21,14 @@ public class User extends BaseEntity {
     private String name;
 
     @Column
-    private String phone;
-
-    @Column
     private String region;
 
     @Column
     private String password;
 
     @Column
-    private String role; // "OWNER", "CUSTOMER"
+    @Enumerated(EnumType.STRING)
+    private Role role;  // REGULAR / OWNER
 
     @Column
     private String profileImageUrl;

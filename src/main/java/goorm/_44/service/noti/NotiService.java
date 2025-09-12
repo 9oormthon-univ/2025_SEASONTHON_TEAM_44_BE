@@ -40,9 +40,7 @@ public class NotiService {
     @Transactional
     public Long createNoti(NotiCreateRequest req, Long userId) {
         // 1. 사장 검증
-        // TODO : 사장 검증 로직 필요
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
@@ -77,9 +75,7 @@ public class NotiService {
     @Transactional(readOnly = true)
     public PageResponse<NotiLogResponse> getNotiLogs(Long userId, Integer page, Integer size) {
         // 1. 사장 검증
-        // TODO : 사장 검증 로직 필요
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
@@ -129,9 +125,7 @@ public class NotiService {
     @Transactional
     public void readNoti(Long userId, Long notiId) {
         // 1. 단골 검증
-        // TODO : 사장 검증 로직 필요
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = validateRegular(userId);
 
         Noti noti = notiRepository.findById(notiId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTI_NOT_FOUND));
@@ -143,5 +137,27 @@ public class NotiService {
                 .build();
 
         notiReadRepository.save(notiRead);
+    }
+
+    private User validateOwner(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.OWNER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
+    }
+
+    private User validateRegular(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.REGULAR) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
     }
 }

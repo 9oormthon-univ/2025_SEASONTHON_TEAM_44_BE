@@ -1,7 +1,9 @@
 package goorm._44.controller.user;
 
 import goorm._44.common.api.ApiResult;
+import goorm._44.dto.request.KakaoLoginRequest;
 import goorm._44.dto.response.KakaoUserInfoResponse;
+import goorm._44.entity.Role;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
 import goorm._44.service.user.KakaoService;
@@ -21,23 +23,31 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
 
-    @GetMapping("/kakao/login")
-    @Operation(summary = "카카오 로그인", description = "카카오 인가 코드(code)로 Access/Refresh 토큰을 발급합니다.")
-    public ApiResult<LoginTokenResponse> exchange(@RequestParam String code) {
-        String kakaoAccess = kakaoService.getAccessTokenFromKakao(code);
+    @PostMapping("/kakao/login")
+    @Operation(
+            summary = "카카오 로그인",
+            description = "카카오 인가 코드(code)와 Role(REGULAR/OWNER)을 받아 로그인/회원가입을 처리합니다."
+    )
+    public ApiResult<LoginTokenResponse> login(@RequestBody KakaoLoginRequest request) {
+        Role effectiveRole = (request.role() == null) ? Role.REGULAR : request.role();
+
+        String kakaoAccess = kakaoService.getAccessTokenFromKakao(request.code());
         KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(kakaoAccess);
 
-        User user = userRepository.findByName(userInfo.getKakaoAccount().getProfile().getNickName())
+        User user = userRepository.findByPasswordAndRole(String.valueOf(userInfo.getId()), effectiveRole)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .name(userInfo.getKakaoAccount().getProfile().getNickName())
-                                .password(String.valueOf(userInfo.getId())) // 임시 비번
+                                .password(String.valueOf(userInfo.getId())) // kakaoId를 password에 저장
+                                .profileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl())
+                                .role(effectiveRole)
                                 .build()
                 ));
 
-        // 기존 유저도 로그인 시 프로필 갱신
-        user.setProfileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
-        userRepository.save(user);
+
+//        // 기존 유저도 로그인 시 프로필 갱신
+//        user.setProfileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
+//        userRepository.save(user);
 
         String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));

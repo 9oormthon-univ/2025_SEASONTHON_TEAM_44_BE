@@ -34,8 +34,7 @@ public class StoreService {
      */
     @Transactional(readOnly = true)
     public boolean existsMyStore(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         return storeRepository.existsByUserId(userId);
     }
@@ -46,8 +45,7 @@ public class StoreService {
      */
     @Transactional
     public Long createStore(StoreCreateRequest req, Long userId) {
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         boolean exists = storeRepository.existsByUserId(userId);
         if (exists) {
@@ -64,8 +62,7 @@ public class StoreService {
      */
     @Transactional(readOnly = true)
     public StoreResponse getMyStore(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        User owner = validateOwner(userId);
 
         Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
@@ -100,14 +97,12 @@ public class StoreService {
      * [사장] 내 대시보드 조회
      */
     @Transactional(readOnly = true)
-    public DashboardResponse getMyDashboard(Long ownerUserId) {
+    public DashboardResponse getMyDashboard(Long userId) {
         // 1. 사장 검증
-        // TODO : 사장 검증 로직 필요
-        userRepository.findById(ownerUserId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User owner = validateOwner(userId);
 
         // 2. 사장 가게 조회
-        Store store = storeRepository.findByUserId(ownerUserId).stream()
+        Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
                 .orElse(null);
 
@@ -211,6 +206,8 @@ public class StoreService {
      */
     @Transactional(readOnly = true)
     public boolean hasStamp(Long userId, Long storeId) {
+        User user = validateRegular(userId);
+
         return stampRepository.existsByUserIdAndStoreId(userId, storeId);
     }
 
@@ -221,9 +218,8 @@ public class StoreService {
     @Transactional
     public Long registerStamp(Long userId, Long storeId) {
         // 1. 단골 검증
-        // TODO : 단골 검증 로직 필요(단골 계정인지)
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = validateRegular(userId);
+
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
@@ -258,9 +254,8 @@ public class StoreService {
     @Transactional
     public Long addStamp(Long userId, Long storeId) {
         // 1. 단골 검증
-        // TODO : 단골 검증 로직 필요
-        userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = validateRegular(userId);
+
         Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, storeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAMP_NOT_FOUND));
 
@@ -290,5 +285,27 @@ public class StoreService {
         int hour = time / 100;
         int minute = time % 100;
         return String.format("%02d:%02d", hour, minute);
+    }
+
+    private User validateOwner(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.OWNER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
+    }
+
+    private User validateRegular(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.REGULAR) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
     }
 }

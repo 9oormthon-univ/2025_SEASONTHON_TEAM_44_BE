@@ -13,7 +13,7 @@ public enum ErrorCode {
     INSUFFICIENT_STAMPS(HttpStatus.BAD_REQUEST, "스탬프가 부족하여 쿠폰을 사용할 수 없습니다."),
 
     // 403 FORBIDDEN
-    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 404 NOT FOUND
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
