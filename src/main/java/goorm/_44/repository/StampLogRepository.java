@@ -74,4 +74,26 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
                                                   @Param("action") StampAction action);
 
 
+    // 오늘 방문자 수 (유저 기준)
+    @Query("SELECT COUNT(DISTINCT l.stamp.user.id) " +
+            "FROM StampLog l " +
+            "WHERE l.store.id = :storeId AND DATE(l.createdAt) = :date")
+    int countVisitorsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
+
+    // 신규 단골 (스탬프 1개 유저)
+    @Query("SELECT COUNT(DISTINCT s.user.id) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId " +
+            "AND s.totalStamp = 1 " +
+            "AND DATE(s.createdAt) = :date")
+    int countNewRegularsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
+
+    // 재방문 단골 (스탬프 2개 이상 유저)
+    @Query("SELECT COUNT(DISTINCT s.user.id) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId " +
+            "AND s.totalStamp > 1 " +
+            "AND DATE(s.updatedAt) = :date")
+    int countReRegularsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
+
 }

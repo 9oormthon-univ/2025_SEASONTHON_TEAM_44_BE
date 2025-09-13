@@ -5,6 +5,7 @@ import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.IdResponse;
 import goorm._44.dto.response.StoreResponse;
+import goorm._44.service.insight.InsightService;
 import goorm._44.service.store.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Store", description = "가게 관련 API")
 public class StoreController {
     private final StoreService storeService;
-
+    private final InsightService insightService;
 
     @GetMapping("/me/exists")
     @Operation(summary = "[사장] 가게 등록 여부 확인", description = "사용자의 가게 등록 여부를 확인합니다.")
@@ -90,5 +91,15 @@ public class StoreController {
         Long userId = Long.parseLong(authentication.getName());
         Long stampId = storeService.addStamp(userId, storeId);
         return ApiResult.success(new IdResponse(stampId));
+    }
+
+    @PostMapping("/insight")
+    @Operation(summary="[사장] 인사이트 제공", description = "전일 대비 인사이트를 제공합니다.")
+    public ApiResult<String> insight(
+        Authentication authentication
+    ) {
+        Long ownerUserId = Long.parseLong(authentication.getName());
+        String insightResult = insightService.getInsight(ownerUserId);
+        return ApiResult.success("insight");
     }
 }
