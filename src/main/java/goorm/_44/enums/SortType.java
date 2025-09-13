@@ -1,4 +1,4 @@
-package goorm._44.entity;
+package goorm._44.enums;
 
 public enum SortType {
     STAMP,       // 스탬프 임박순

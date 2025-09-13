@@ -2,8 +2,9 @@ package goorm._44.controller.stamp;
 
 import goorm._44.common.api.ApiResult;
 import goorm._44.dto.response.*;
-import goorm._44.entity.SortType;
-import goorm._44.entity.StampAction;
+import goorm._44.enums.CouponType;
+import goorm._44.enums.SortType;
+import goorm._44.enums.StampAction;
 import goorm._44.service.stamp.StampService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -90,12 +90,14 @@ public class StampController {
 
 
     @GetMapping("/coupons")
-    @Operation(summary = "[단골] 쿠폰 목록 조회", description = "보유 중인 쿠폰 목록을 조회합니다.")
-    public ApiResult<List<CouponResponse>> getCoupons(Authentication authentication) {
+    @Operation(summary = "[단골] 쿠폰 목록 조회", description = "보유 중인 쿠폰 또는 예정 쿠폰 목록을 조회합니다.")
+    public ApiResult<List<CouponResponse>> getCoupons(
+            Authentication authentication,
+            @RequestParam(defaultValue = "OWNED") CouponType type
+    ) {
         Long userId = Long.parseLong(authentication.getName());
-        return ApiResult.success(stampService.getCoupons(userId));
+        return ApiResult.success(stampService.getCoupons(userId, type));
     }
-
 
     @PostMapping("/{stampId}/coupon")
     @Operation(summary = "[단골] 쿠폰 사용", description = "해당 스탬프 ID로 쿠폰을 사용합니다. (10 스탬프 차감)")

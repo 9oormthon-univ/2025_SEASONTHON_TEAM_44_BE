@@ -1,6 +1,6 @@
 package goorm._44.repository;
 
-import goorm._44.entity.StampAction;
+import goorm._44.enums.StampAction;
 import goorm._44.entity.StampLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

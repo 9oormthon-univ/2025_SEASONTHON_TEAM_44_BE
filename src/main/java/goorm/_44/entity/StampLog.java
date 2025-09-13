@@ -1,5 +1,6 @@
 package goorm._44.entity;
 
+import goorm._44.enums.StampAction;
 import jakarta.persistence.*;
 import lombok.*;
 
