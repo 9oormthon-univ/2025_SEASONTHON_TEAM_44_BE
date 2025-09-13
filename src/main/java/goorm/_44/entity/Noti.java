@@ -1,6 +1,7 @@
 package goorm._44.entity;
 
 
+import goorm._44.enums.NotiTarget;
 import jakarta.persistence.*;
 import lombok.*;
 

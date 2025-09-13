@@ -1,5 +1,6 @@
 package goorm._44.entity;
 
+import goorm._44.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,19 +22,17 @@ public class User extends BaseEntity {
     private String name;
 
     @Column
-    private String phone;
-
-    @Column
     private String region;
 
     @Column
     private String password;
 
     @Column
-    private String role; // "OWNER", "CUSTOMER"
+    @Enumerated(EnumType.STRING)
+    private Role role;  // REGULAR / OWNER
 
     @Column
-    private String profileImageKey;
+    private String profileImageUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Store> store  = new ArrayList<>();

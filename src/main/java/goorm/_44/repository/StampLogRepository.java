@@ -1,6 +1,6 @@
 package goorm._44.repository;
 
-import goorm._44.entity.StampAction;
+import goorm._44.enums.StampAction;
 import goorm._44.entity.StampLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +18,15 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
 
     List<StampLog> findTop20ByStamp_User_IdOrderByCreatedAtDesc(Long userId);
 
-    // 기존 List -> Page 로 교체 (정렬은 Pageable에서 지정)
-    Page<StampLog> findByStore_Id(Long storeId, Pageable pageable);
+    Page<StampLog> findByStoreId(Long storeId, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndAction(Long storeId, StampAction action, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndStampUserNameContaining(Long storeId, String name, Pageable pageable);
+
+    Page<StampLog> findByStoreIdAndStampUserNameContainingAndAction(
+            Long storeId, String name, StampAction action, Pageable pageable
+    );
 
     int countByStamp_User_IdAndStore_IdAndAction(Long userId, Long storeId, StampAction action);
 
@@ -66,5 +73,27 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
                                                   @Param("date") LocalDate date,
                                                   @Param("action") StampAction action);
 
+
+    // 오늘 방문자 수 (유저 기준)
+    @Query("SELECT COUNT(DISTINCT l.stamp.user.id) " +
+            "FROM StampLog l " +
+            "WHERE l.store.id = :storeId AND DATE(l.createdAt) = :date")
+    int countVisitorsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
+
+    // 신규 단골 (스탬프 1개 유저)
+    @Query("SELECT COUNT(DISTINCT s.user.id) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId " +
+            "AND s.totalStamp = 1 " +
+            "AND DATE(s.createdAt) = :date")
+    int countNewRegularsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
+
+    // 재방문 단골 (스탬프 2개 이상 유저)
+    @Query("SELECT COUNT(DISTINCT s.user.id) " +
+            "FROM Stamp s " +
+            "WHERE s.store.id = :storeId " +
+            "AND s.totalStamp > 1 " +
+            "AND DATE(s.updatedAt) = :date")
+    int countReRegularsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
 
 }

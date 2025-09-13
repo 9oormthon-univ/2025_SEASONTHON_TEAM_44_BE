@@ -1,6 +1,6 @@
 package goorm._44.controller.user;
 
-import goorm._44.config.api.ApiResult;
+import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.UserLocationRequest;
 import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.service.user.UserService;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "User", description = "사용자 관련 API")
 public class UserController {

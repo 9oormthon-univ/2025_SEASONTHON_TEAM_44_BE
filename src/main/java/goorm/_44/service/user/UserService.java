@@ -1,10 +1,11 @@
 package goorm._44.service.user;
 
-import goorm._44.config.exception.CustomException;
-import goorm._44.config.exception.ErrorCode;
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
 import goorm._44.dto.response.UserSimpleResponse;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
+import goorm._44.service.file.PresignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +36,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // User 엔티티에 profileImageKey 필드가 있다고 가정
-        String profileImageUrl = (user.getProfileImageKey() == null)
-                ? null
-                : presignService.viewUrl(user.getProfileImageKey(), null).url();
-
         return new UserSimpleResponse(
                 user.getName(),
-                profileImageUrl,
+                user.getProfileImageUrl(),
                 user.getRegion()
         );
     }

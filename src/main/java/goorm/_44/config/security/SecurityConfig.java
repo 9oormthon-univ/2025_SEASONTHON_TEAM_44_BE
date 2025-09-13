@@ -1,6 +1,6 @@
 package goorm._44.config.security;
 
-import goorm._44.utils.JwtTokenProvider;
+import goorm._44.common.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         // '/api/login' 경로는 인증 없이 접근 가능
-                        .requestMatchers("/api/login", "/login/page", "/callback", "/favicon.ico"
-                        , "/swagger-ui/**", "/v3/api-docs/**", "/geocode/address", "auth/**", "/owner/**", "/owner",
+                        .requestMatchers("/api/login", "/login/page", "/favicon.ico"
+                        , "/swagger-ui/**", "/v3/api-docs/**", "/geocode/address", "/api/auth/**",
                         "www.dasion.store/**", "www.dasion.store").permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()

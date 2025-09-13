@@ -1,7 +1,7 @@
 package goorm._44.dto.response;
 
 import goorm._44.entity.Noti;
-import goorm._44.entity.NotiTarget;
+import goorm._44.enums.NotiTarget;
 
 import java.time.LocalDateTime;
 
