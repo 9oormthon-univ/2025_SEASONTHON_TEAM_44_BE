@@ -1,4 +1,4 @@
-package goorm._44.entity;
+package goorm._44.enums;
 
 public enum StampAction {
     REGISTER,   // 신규 등록

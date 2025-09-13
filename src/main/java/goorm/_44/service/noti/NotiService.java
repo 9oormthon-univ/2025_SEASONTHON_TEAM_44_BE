@@ -6,6 +6,7 @@ import goorm._44.dto.request.NotiCreateRequest;
 import goorm._44.dto.response.PageResponse;
 import goorm._44.dto.response.NotiLogResponse;
 import goorm._44.entity.*;
+import goorm._44.enums.Role;
 import goorm._44.repository.NotiReadRepository;
 import goorm._44.repository.NotiRepository;
 import goorm._44.repository.StampRepository;

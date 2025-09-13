@@ -3,7 +3,7 @@ package goorm._44.controller.user;
 import goorm._44.common.api.ApiResult;
 import goorm._44.dto.request.KakaoLoginRequest;
 import goorm._44.dto.response.KakaoUserInfoResponse;
-import goorm._44.entity.Role;
+import goorm._44.enums.Role;
 import goorm._44.entity.User;
 import goorm._44.repository.UserRepository;
 import goorm._44.service.user.KakaoService;

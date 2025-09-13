@@ -4,6 +4,7 @@ import goorm._44.common.exception.CustomException;
 import goorm._44.common.exception.ErrorCode;
 import goorm._44.dto.response.*;
 import goorm._44.entity.*;
+import goorm._44.enums.*;
 import goorm._44.repository.*;
 import goorm._44.service.file.PresignService;
 import lombok.RequiredArgsConstructor;
@@ -324,8 +325,7 @@ public class StampService {
      * [단골] 쿠폰 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<CouponResponse> getCoupons(Long userId) {
-
+    public List<CouponResponse> getCoupons(Long userId, CouponType type) {
         User user = validateRegular(userId);
 
         List<Stamp> stamps = stampRepository.findByUserId(userId);
@@ -335,21 +335,40 @@ public class StampService {
             int availableStamp = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0);
             int couponCount = availableStamp / 10;
 
-            String storeImageUrl = toImageUrl(stamp.getStore().getImageKey());
-
-            result.add(
-                    CouponResponse.builder()
-                            .stampId(stamp.getId())
-                            .storeId(stamp.getStore().getId())
-                            .storeName(stamp.getStore().getName())
-                            .storeImage(storeImageUrl)
-                            .availableStamp(availableStamp)
-                            .couponCount(couponCount)
-                            .build()
-            );
+            switch (type) {
+                case OWNED -> {
+                    if (couponCount > 0) {
+                        result.add(CouponResponse.builder()
+                                .stampId(stamp.getId())
+                                .storeId(stamp.getStore().getId())
+                                .storeName(stamp.getStore().getName())
+                                .storeImage(toImageUrl(stamp.getStore().getImageKey()))
+                                .availableStamp(availableStamp)
+                                .couponCount(couponCount)
+                                .build()
+                        );
+                    }
+                }
+                case SCHEDULED -> {
+                    if ((availableStamp % 10) > 0) {
+                        int stampsLeft = 10 - (availableStamp % 10);
+                        result.add(CouponResponse.builder()
+                                .stampId(stamp.getId())
+                                .storeId(stamp.getStore().getId())
+                                .storeName(stamp.getStore().getName())
+                                .storeImage(toImageUrl(stamp.getStore().getImageKey()))
+                                .availableStamp(availableStamp)
+                                .couponCount(0)
+                                .stampsLeft(stampsLeft)
+                                .build()
+                        );
+                    }
+                }
+            }
         }
         return result;
     }
+
 
 
     /**

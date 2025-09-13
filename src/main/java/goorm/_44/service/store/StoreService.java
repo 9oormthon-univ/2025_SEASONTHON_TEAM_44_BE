@@ -5,6 +5,8 @@ import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.StoreResponse;
 import goorm._44.entity.*;
+import goorm._44.enums.Role;
+import goorm._44.enums.StampAction;
 import goorm._44.repository.*;
 import goorm._44.common.exception.ErrorCode;
 

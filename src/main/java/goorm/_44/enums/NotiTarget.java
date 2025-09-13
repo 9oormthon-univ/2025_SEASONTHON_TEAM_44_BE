@@ -1,4 +1,4 @@
-package goorm._44.entity;
+package goorm._44.enums;
 
 public enum NotiTarget {
     ALL,        // 전체

@@ -1,6 +1,6 @@
 package goorm._44.repository;
 
-import goorm._44.entity.Role;
+import goorm._44.enums.Role;
 import goorm._44.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
