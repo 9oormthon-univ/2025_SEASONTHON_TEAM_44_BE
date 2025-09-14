@@ -39,12 +39,6 @@ public class MenuImageController {
         return ApiResult.success(menuImageService.getMenuImages(userId));
     }
 
-
-//    @GetMapping
-//    @Operation(summary = "[공통] 메뉴판 이미지 조회", description = "해당 가게의 메뉴판 이미지를 조회합니다.")
-//    public ApiResult<List<MenuImageResponse>> getMenuImages(@PathVariable Long storeId) {
-//        return ApiResult.success(menuImageService.getMenuImages(storeId));
-//    }
 //
 //    @DeleteMapping("/{menuImageId}")
 //    @Operation(summary = "[사장] 메뉴판 이미지 삭제", description = "특정 메뉴판 이미지를 삭제합니다.")

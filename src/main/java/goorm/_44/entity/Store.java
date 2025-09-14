@@ -58,6 +58,12 @@ public class Store extends BaseEntity {
     private List<StampLog> log = new ArrayList<>();
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Noti>  noti = new ArrayList<>();
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MenuImage> menuImages = new ArrayList<>();
+    @OneToOne(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Coupon coupon;
+
+
 
     public static Store from(StoreCreateRequest req, User user) {
         return Store.builder()

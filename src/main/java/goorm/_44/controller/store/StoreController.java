@@ -55,7 +55,15 @@ public class StoreController {
         return ApiResult.success(storeService.getMyDashboard(ownerUserId));
     }
 
-
+    @PostMapping("/insight")
+    @Operation(summary="[사장] 인사이트 제공", description = "전일 대비 인사이트를 제공합니다.")
+    public ApiResult<String> insight(
+        Authentication authentication
+    ) {
+        Long ownerUserId = Long.parseLong(authentication.getName());
+        String insightResult = insightService.getInsight(ownerUserId);
+        return ApiResult.success("insight");
+    }
 
 
     @GetMapping("/{storeId}/regular")
@@ -91,15 +99,5 @@ public class StoreController {
         Long userId = Long.parseLong(authentication.getName());
         Long stampId = storeService.addStamp(userId, storeId);
         return ApiResult.success(new IdResponse(stampId));
-    }
-
-    @PostMapping("/insight")
-    @Operation(summary="[사장] 인사이트 제공", description = "전일 대비 인사이트를 제공합니다.")
-    public ApiResult<String> insight(
-        Authentication authentication
-    ) {
-        Long ownerUserId = Long.parseLong(authentication.getName());
-        String insightResult = insightService.getInsight(ownerUserId);
-        return ApiResult.success("insight");
     }
 }

@@ -20,6 +20,7 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 가게가 없습니다."),
     NOTI_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 공지가 없습니다."),
     STAMP_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 스탬프가 없습니다."),
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "등록된 쿠폰이 없습니다."),
 
     // 409 CONFLICT
     STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 가게가 있습니다."),
