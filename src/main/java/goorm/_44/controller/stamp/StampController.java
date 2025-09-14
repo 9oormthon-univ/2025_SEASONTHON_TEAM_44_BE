@@ -91,7 +91,7 @@ public class StampController {
 
     @GetMapping("/coupons")
     @Operation(summary = "[단골] 쿠폰 목록 조회", description = "보유 중인 쿠폰 또는 예정 쿠폰 목록을 조회합니다.")
-    public ApiResult<List<CouponResponse>> getCoupons(
+    public ApiResult<List<RegularCouponResponse>> getCoupons(
             Authentication authentication,
             @RequestParam(defaultValue = "OWNED") CouponType type
     ) {

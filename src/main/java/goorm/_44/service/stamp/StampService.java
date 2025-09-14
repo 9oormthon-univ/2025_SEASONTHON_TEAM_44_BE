@@ -35,6 +35,7 @@ public class StampService {
     private final NotiRepository notiRepository;
     private final NotiReadRepository notiReadRepository;
     private final StampLogRepository stampLogRepository;
+    private final CouponRepository couponRepository;
     private final MenuImageRepository menuImageRepository;
     private final PresignService presignService;
 
@@ -330,26 +331,31 @@ public class StampService {
      * [단골] 쿠폰 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<CouponResponse> getCoupons(Long userId, CouponType type) {
+    public List<RegularCouponResponse> getCoupons(Long userId, CouponType type) {
         User user = validateRegular(userId);
 
         List<Stamp> stamps = stampRepository.findByUserId(userId);
-        List<CouponResponse> result = new ArrayList<>();
+        List<RegularCouponResponse> result = new ArrayList<>();
 
         for (Stamp stamp : stamps) {
             int availableStamp = (stamp.getAvailableStamp() != null ? stamp.getAvailableStamp() : 0);
             int couponCount = availableStamp / 10;
 
+            Coupon coupon = couponRepository.findByStoreId(stamp.getStore().getId())
+                    .orElse(Coupon.createDefault(stamp.getStore()));
+
             switch (type) {
                 case OWNED -> {
                     if (couponCount > 0) {
-                        result.add(CouponResponse.builder()
+                        result.add(RegularCouponResponse.builder()
                                 .stampId(stamp.getId())
                                 .storeId(stamp.getStore().getId())
                                 .storeName(stamp.getStore().getName())
                                 .storeImage(toImageUrl(stamp.getStore().getImageKey()))
                                 .availableStamp(availableStamp)
                                 .couponCount(couponCount)
+                                .couponName(coupon.getName())
+                                .couponBenefit(coupon.getBenefit())
                                 .build()
                         );
                     }
@@ -357,7 +363,7 @@ public class StampService {
                 case SCHEDULED -> {
                     if ((availableStamp % 10) > 0) {
                         int stampsLeft = 10 - (availableStamp % 10);
-                        result.add(CouponResponse.builder()
+                        result.add(RegularCouponResponse.builder()
                                 .stampId(stamp.getId())
                                 .storeId(stamp.getStore().getId())
                                 .storeName(stamp.getStore().getName())
@@ -365,6 +371,8 @@ public class StampService {
                                 .availableStamp(availableStamp)
                                 .couponCount(0)
                                 .stampsLeft(stampsLeft)
+                                .couponName(coupon.getName())
+                                .couponBenefit(coupon.getBenefit())
                                 .build()
                         );
                     }
@@ -457,7 +465,6 @@ public class StampService {
         if (user.getRole() != Role.OWNER) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
-
         return user;
     }
 
