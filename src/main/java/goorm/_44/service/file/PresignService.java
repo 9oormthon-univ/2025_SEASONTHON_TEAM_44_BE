@@ -1,8 +1,13 @@
 package goorm._44.service.file;
 
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
 import goorm._44.dto.request.PresignRequest;
 import goorm._44.dto.response.PresignResponse;
 import goorm._44.dto.response.UrlResponse;
+import goorm._44.entity.User;
+import goorm._44.enums.Role;
+import goorm._44.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,12 +26,15 @@ import java.util.UUID;
 public class PresignService {
 
     private final S3Presigner presigner;
+    private final UserRepository userRepository;
 
     @Value("${aws.s3.bucket}") private String bucket;
     @Value("${aws.s3.presignExpireSec:300}") private long presignExpireSec;
     @Value("${aws.s3.viewExpireSec:86400}") private long viewExpireSec;
 
-    public PresignResponse presign(PresignRequest req) {
+    public PresignResponse presign(PresignRequest req, Long userId) {
+        User owner = validateOwner(userId);
+
         String safe = (req.fileName() == null ? "file.bin" : req.fileName())
                 .replaceAll("[^a-zA-Z0-9._-]", "_");
         String ext = extractExt(safe);
@@ -84,8 +92,20 @@ public class PresignService {
         String ext = (i > 0) ? name.substring(i + 1) : "bin";
         return ext.equalsIgnoreCase("jpeg") ? "jpg" : ext.toLowerCase();
     }
+
     private String stripExt(String name) {
         int i = name.lastIndexOf('.');
         return (i > 0) ? name.substring(0, i) : name;
+    }
+
+    private User validateOwner(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.OWNER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        return user;
     }
 }

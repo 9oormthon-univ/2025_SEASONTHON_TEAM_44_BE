@@ -2,6 +2,11 @@ package goorm._44.service.geocode;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import goorm._44.common.exception.CustomException;
+import goorm._44.common.exception.ErrorCode;
+import goorm._44.entity.User;
+import goorm._44.enums.Role;
+import goorm._44.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,15 +22,20 @@ public class GeocodingService {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper; // ObjectMapper 주입
+    private final UserRepository userRepository;
 
-    public GeocodingService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+    public GeocodingService(WebClient.Builder webClientBuilder,
+                            ObjectMapper objectMapper,
+                            UserRepository userRepository) {
         this.webClient = webClientBuilder
                 .baseUrl("https://maps.googleapis.com/maps/api/geocode/json")
                 .build();
         this.objectMapper = objectMapper;
+        this.userRepository = userRepository;
     }
 
-    public Mono<Optional<String>> getAddressFromCoordinates(double latitude, double longitude) {
+    public Mono<Optional<String>> getAddressFromCoordinates(double latitude, double longitude, Long userId) {
+        validateRegular(userId);
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("latlng", latitude + "," + longitude)
@@ -49,8 +59,6 @@ public class GeocodingService {
                     String gu = null;
                     String city = null;
 
-
-                    // TODO : [geocode] response 결정 - city/gu/dong 반환 범위
                     for (JsonNode component : addressComponents) {
                         JsonNode types = component.path("types");
                         for (JsonNode type : types) {
@@ -73,5 +81,14 @@ public class GeocodingService {
             System.err.println("JSON 파싱 오류: " + e.getMessage());
         }
         return null;
+    }
+
+    private void validateRegular(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.REGULAR) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
     }
 }

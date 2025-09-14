@@ -43,7 +43,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login/page",
                                 "/api/auth/**",
-                                "/api/geocode/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",

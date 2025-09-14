@@ -7,6 +7,7 @@ import goorm._44.service.file.PresignService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,8 +33,9 @@ public class FileController {
         """
     )
     @PostMapping("/presign")
-    public ApiResult<PresignResponse> presign(@RequestBody PresignRequest req) {
-        return ApiResult.success(presignService.presign(req));
+    public ApiResult<PresignResponse> presign(@RequestBody PresignRequest req, Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        return ApiResult.success(presignService.presign(req, userId));
     }
 
     // 필요하면 GET용 Presign도 같은 방식으로
