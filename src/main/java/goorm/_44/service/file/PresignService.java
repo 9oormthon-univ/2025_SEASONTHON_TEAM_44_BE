@@ -23,9 +23,8 @@ public class PresignService {
     private final S3Presigner presigner;
 
     @Value("${aws.s3.bucket}") private String bucket;
-    @Value("${aws.s3.public:false}") private boolean publicReadable;
-    @Value("${aws.s3.publicUrlBase:}") private String publicUrlBase;
-    @Value("${aws.s3.presignExpireSec:600}") private long presignExpireSec;
+    @Value("${aws.s3.presignExpireSec:300}") private long presignExpireSec;
+    @Value("${aws.s3.viewExpireSec:86400}") private long viewExpireSec;
 
     public PresignResponse presign(PresignRequest req) {
         String safe = (req.fileName() == null ? "file.bin" : req.fileName())
@@ -63,14 +62,21 @@ public class PresignService {
                 System.currentTimeMillis() + ttl * 1000);
     }
 
+//    public UrlResponse viewUrl(String key, Long expireSecOverride) {
+//        if (publicReadable) {
+//            String base = (publicUrlBase == null || publicUrlBase.isBlank())
+//                    ? "" : (publicUrlBase.endsWith("/") ? publicUrlBase.substring(0, publicUrlBase.length() - 1) : publicUrlBase);
+//            String url = base.isEmpty() ? key : base + "/" + key;
+//            return new UrlResponse(url, -1L); // 퍼블릭은 만료 없음
+//        }
+//        return presignGet(key, expireSecOverride);
+//    }
+
     public UrlResponse viewUrl(String key, Long expireSecOverride) {
-        if (publicReadable) {
-            String base = (publicUrlBase == null || publicUrlBase.isBlank())
-                    ? "" : (publicUrlBase.endsWith("/") ? publicUrlBase.substring(0, publicUrlBase.length() - 1) : publicUrlBase);
-            String url = base.isEmpty() ? key : base + "/" + key;
-            return new UrlResponse(url, -1L); // 퍼블릭은 만료 없음
-        }
-        return presignGet(key, expireSecOverride);
+        long ttl = (expireSecOverride == null || expireSecOverride <= 0)
+                ? viewExpireSec
+                : expireSecOverride;
+        return presignGet(key, ttl);
     }
 
     private String extractExt(String name) {
