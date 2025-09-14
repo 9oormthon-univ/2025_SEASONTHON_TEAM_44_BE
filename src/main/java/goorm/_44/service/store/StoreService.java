@@ -106,7 +106,7 @@ public class StoreService {
         // 2. 사장 가게 조회
         Store store = storeRepository.findByUserId(userId).stream()
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
         if (store == null) {
             return new DashboardResponse(0, null, List.of(), null);
