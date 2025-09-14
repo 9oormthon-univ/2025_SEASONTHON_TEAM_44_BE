@@ -5,6 +5,7 @@ import goorm._44.dto.response.GeocodeResponse;
 import goorm._44.service.geocode.GeocodingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -23,9 +24,12 @@ public class GeocodingController {
     @Operation(summary = "위경도 변환", description = "위도(lat), 경도(lng)를 주소로 변환합니다.")
     public Mono<ApiResult<GeocodeResponse>> getAddress(
             @RequestParam double lat,
-            @RequestParam double lng
-    ) {
-        return geocodingService.getAddressFromCoordinates(lat, lng)
+            @RequestParam double lng,
+            Authentication authentication
+            ) {
+        Long userId = Long.parseLong(authentication.getName());
+
+        return geocodingService.getAddressFromCoordinates(lat, lng, userId)
                 .map(opt -> ApiResult.success(new GeocodeResponse(opt.orElse(null))));
     }
 }

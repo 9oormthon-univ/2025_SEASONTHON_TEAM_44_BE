@@ -35,6 +35,7 @@ public class StampService {
     private final NotiRepository notiRepository;
     private final NotiReadRepository notiReadRepository;
     private final StampLogRepository stampLogRepository;
+    private final MenuImageRepository menuImageRepository;
     private final PresignService presignService;
 
     /**
@@ -230,11 +231,6 @@ public class StampService {
         Stamp stamp = stampRepository.findByUserIdAndStoreId(userId, storeId).orElse(null);
         int availableStamp = (stamp == null ? 0 : stamp.getAvailableStamp());
 
-
-        // 이미지 URL
-        String imageUrl = toImageUrl(store.getImageKey());
-
-
         // 최신 공지
         StoreDetailResponse.NotiSimpleResponse latestNoti = notiRepository.findByStoreId(storeId).stream()
                 .sorted(Comparator.comparing(Noti::getCreatedAt).reversed())
@@ -249,6 +245,14 @@ public class StampService {
                 ))
                 .orElse(null);
 
+        // 이미지 URL
+        String storeImageUrl = toImageUrl(store.getImageKey());
+
+        // 메뉴판 이미지
+        List<String> menuImageUrls = menuImageRepository.findByStoreId(storeId).stream()
+                .map(menuImage -> toImageUrl(menuImage.getImageKey()))
+                .toList();
+
         // 포맷 적용해서 반환
         return new StoreDetailResponse(
                 store.getId(),
@@ -259,7 +263,8 @@ public class StampService {
                 store.getDetailAddress(),
                 formatTime(store.getOpen()),    // HH:mm
                 formatTime(store.getClose()),   // HH:mm
-                imageUrl,
+                storeImageUrl,            // 대표 이미지
+                menuImageUrls,       // 메뉴판 이미지들
                 availableStamp,
                 latestNoti
         );

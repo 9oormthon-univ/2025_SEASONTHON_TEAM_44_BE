@@ -1,4 +1,4 @@
-package goorm._44.service.insight;
+package goorm._44.service.store;
 
 import goorm._44.common.exception.CustomException;
 import goorm._44.common.exception.ErrorCode;

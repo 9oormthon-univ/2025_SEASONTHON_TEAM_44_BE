@@ -5,7 +5,7 @@ import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.IdResponse;
 import goorm._44.dto.response.StoreResponse;
-import goorm._44.service.insight.InsightService;
+import goorm._44.service.store.InsightService;
 import goorm._44.service.store.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

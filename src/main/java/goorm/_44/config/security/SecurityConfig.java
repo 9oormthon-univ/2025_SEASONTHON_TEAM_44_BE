@@ -38,8 +38,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // '/api/login' 경로는 인증 없이 접근 가능
                         .requestMatchers("/api/login", "/login/page", "/favicon.ico"
-                        , "/swagger-ui/**", "/v3/api-docs/**", "/geocode/address", "/api/auth/**",
+                        , "/swagger-ui/**", "/v3/api-docs/**", "/api/geocode/address", "/api/auth/**",
                         "www.dasion.store/**", "www.dasion.store").permitAll()
+                        .requestMatchers(
+                                "/login/page",
+                                "/api/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
