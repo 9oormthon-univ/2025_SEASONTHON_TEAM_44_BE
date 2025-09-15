@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -215,6 +212,64 @@ public class StampService {
                     );
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RecommendResponse recommendCategoryStore(Long userId) {
+        User user = validateRegular(userId);
+
+        // 1. 단골 스탬프 조회
+        List<Stamp> stamps = stampRepository.findByUserId(user.getId());
+        if (stamps.isEmpty()) {
+            return null;
+        }
+
+        // 단골 가게 ID 모아두기
+        Set<Long> myStoreIds = stamps.stream()
+                .map(stamp -> stamp.getStore().getId())
+                .collect(Collectors.toSet());
+
+        // 2. 카테고리별 totalStamp 합산
+        Map<String, Integer> categoryVisitCount = new HashMap<>();
+        for (Stamp stamp : stamps) {
+            String category = stamp.getStore().getCategory();
+            int total = (stamp.getTotalStamp() != null ? stamp.getTotalStamp() : 0);
+            if (category != null) {
+                categoryVisitCount.put(category, categoryVisitCount.getOrDefault(category, 0) + total);
+            }
+        }
+
+        if (categoryVisitCount.isEmpty()) {
+            return null;
+        }
+
+        // 3. 가장 많이 방문한 카테고리 선택
+        int maxVisit = categoryVisitCount.values().stream().max(Integer::compareTo).orElse(0);
+        List<String> topCategories = categoryVisitCount.entrySet().stream()
+                .filter(e -> e.getValue() == maxVisit)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        Random random = new Random();
+        String chosenCategory = topCategories.get(random.nextInt(topCategories.size()));
+
+        // 4. 추천 매장 선택
+        List<Store> candidateStores = storeRepository.findByCategory(chosenCategory).stream()
+                .filter(store -> !myStoreIds.contains(store.getId()))
+                .toList();
+
+        if (candidateStores.isEmpty()) {
+            return null;
+        }
+
+        Store store = candidateStores.get(random.nextInt(candidateStores.size()));
+
+        return RecommendResponse.builder()
+                .storeId(store.getId())
+                .name(store.getName())
+                .address(store.getAddress())
+                .imageUrl(toImageUrl(store.getImageKey()))
+                .build();
     }
 
 

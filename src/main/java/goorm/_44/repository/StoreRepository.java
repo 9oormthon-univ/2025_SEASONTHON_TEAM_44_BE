@@ -17,4 +17,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByUserId(Long userId);
 
     int countByUserId(Long userId);
+
+    List<Store> findByCategory(String category);
+
 }
