@@ -1,6 +1,7 @@
 package goorm._44.controller.file;
 
 import goorm._44.common.api.ApiResult;
+import goorm._44.dto.request.PresignBatchRequest;
 import goorm._44.dto.request.PresignRequest;
 import goorm._44.dto.response.PresignResponse;
 import goorm._44.service.file.PresignService;
@@ -10,32 +11,32 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-@Tag(name = "File", description = "이미지 업로드 관련 API")
+@Tag(name = "File", description = "[사장] 이미지 업로드 관련 API")
 public class FileController {
 
     private final PresignService presignService;
 
-    @Operation(
-            summary = "이미지 업로드용 Presigned URL 생성",
-            description = """
-        S3에 이미지를 업로드할 수 있도록 Presigned URL을 생성합니다.
-        이후 프론트엔드에서는 응답받은 url로 PUT 요청을 보내 실제 파일을 업로드해야 합니다.
-        **request**
-        - fileName: 업로드할 파일 이름 (예: logo.png)  
-        - contentType: 업로드할 파일의 MIME 타입 (예: image/png)  
-        **response**
-        - key: S3에 저장될 파일 경로 (DB에 저장할 값)  
-        - url: 해당 파일을 업로드할 수 있는 Presigned URL  
-        - expiresAt: Presigned URL 만료 시각 (epoch millis)
-        """
-    )
+    @Operation(summary = "단일 Presigned URL 생성")
     @PostMapping("/presign")
     public ApiResult<PresignResponse> presign(@RequestBody PresignRequest req, Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         return ApiResult.success(presignService.presign(req, userId));
+    }
+
+    @Operation(summary = "다중 Presigned URL 생성")
+    @PostMapping("/presign/batch")
+    public ApiResult<List<PresignResponse>> presignBatch(@RequestBody PresignBatchRequest req, Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        return ApiResult.success(
+                req.files().stream()
+                        .map(r -> presignService.presign(r, userId))
+                        .toList()
+        );
     }
 
     // 필요하면 GET용 Presign도 같은 방식으로

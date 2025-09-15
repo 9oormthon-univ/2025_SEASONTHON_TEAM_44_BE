@@ -20,7 +20,7 @@ public class QrCodeController {
     private final QrCodeService qrCodeService;
 
     @GetMapping
-    @Operation(summary = "QR 코드 생성", description = "입력한 url을 QR 코드 이미지로 변환합니다.")
+    @Operation(summary = "[사장] QR 코드 생성", description = "입력한 url을 QR 코드 이미지로 변환합니다.")
     public ApiResult<QrResponse> generateQr(@RequestParam String url, Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         String qrImage = qrCodeService.generateQrImage(url, userId);

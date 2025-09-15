@@ -54,9 +54,25 @@ public class StoreService {
             throw new CustomException(ErrorCode.STORE_ALREADY_EXISTS);
         }
 
-        Store saved = storeRepository.save(Store.from(req, owner));
+        // 1. Store 저장
+        Store store = Store.from(req, owner);
+        Store saved = storeRepository.save(store);
+
+        // 2. 메뉴판 이미지 저장
+        if (req.menuImageKeys() != null && !req.menuImageKeys().isEmpty()) {
+            for (String key : req.menuImageKeys()) {
+                MenuImage menuImage = MenuImage.builder()
+                        .store(saved)
+                        .imageKey(key)
+                        .build();
+                saved.getMenuImages().add(menuImage); // 연관관계 편의 메서드
+            }
+            storeRepository.save(saved); // cascade 때문에 MenuImage도 같이 저장됨
+        }
+
         return saved.getId();
     }
+
 
 
     /**
@@ -90,7 +106,8 @@ public class StoreService {
                 store.getAddress(),
                 store.getDetailAddress(),
                 openTime,
-                closeTime
+                closeTime,
+                store.getCategory()
         );
     }
 

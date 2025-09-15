@@ -9,5 +9,6 @@ public record StoreResponse(
         String address,
         String detailAddress,
         String open,
-        String close
+        String close,
+        String category
 ) {}

@@ -21,7 +21,7 @@ public class GeocodingController {
     }
 
     @GetMapping("/address")
-    @Operation(summary = "위경도 변환", description = "위도(lat), 경도(lng)를 주소로 변환합니다.")
+    @Operation(summary = "[단골] 위경도 변환", description = "위도(lat), 경도(lng)를 주소로 변환합니다.")
     public Mono<ApiResult<GeocodeResponse>> getAddress(
             @RequestParam double lat,
             @RequestParam double lng,

@@ -69,6 +69,16 @@ public class StampController {
     }
 
 
+    @GetMapping("/recommend")
+    @Operation(summary = "추천 가게 조회", description = "가장 자주 찾는 카테고리를 기반으로 가게를 추천합니다.")
+    public ApiResult<RecommendResponse> recommendStore(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        RecommendResponse response = stampService.recommendCategoryStore(userId);
+
+        return ApiResult.success(response);
+    }
+
+
     @GetMapping("me/stores/{storeId}")
     @Operation(summary = "[단골] 단골 가게 상세 조회", description = "단골 가게 상세 정보와 최신 공지를 조회합니다.")
     public ApiResult<StoreDetailResponse> getStoreDetail(
