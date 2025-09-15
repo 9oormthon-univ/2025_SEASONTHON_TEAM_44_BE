@@ -48,6 +48,9 @@ public class Store extends BaseEntity {
     @Column
     private Integer yesterdayRevisitRegular;
 
+    @Column
+    private String category;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
@@ -64,7 +67,6 @@ public class Store extends BaseEntity {
     private Coupon coupon;
 
 
-
     public static Store from(StoreCreateRequest req, User user) {
         return Store.builder()
                 .name(req.name())
@@ -75,7 +77,9 @@ public class Store extends BaseEntity {
                 .detailAddress(req.detailAddress())
                 .open(req.open())
                 .close(req.close())
+                .category(req.category())
                 .user(user)
+                .menuImages(new ArrayList<>())
                 .build();
     }
 }

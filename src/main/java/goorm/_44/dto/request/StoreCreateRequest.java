@@ -1,5 +1,7 @@
 package goorm._44.dto.request;
 
+import java.util.List;
+
 public record StoreCreateRequest(
         String name,
         String imageKey,
@@ -8,5 +10,7 @@ public record StoreCreateRequest(
         String address,
         String detailAddress,
         Integer open,
-        Integer close
+        Integer close,
+        String category,
+        List<String> menuImageKeys
 ) {}

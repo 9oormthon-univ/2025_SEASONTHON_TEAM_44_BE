@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-@Tag(name = "File", description = "이미지 업로드 관련 API")
+@Tag(name = "File", description = "[사장] 이미지 업로드 관련 API")
 public class FileController {
 
     private final PresignService presignService;

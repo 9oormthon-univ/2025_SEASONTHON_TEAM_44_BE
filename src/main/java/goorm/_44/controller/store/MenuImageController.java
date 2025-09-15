@@ -20,15 +20,15 @@ import java.util.List;
 public class MenuImageController {
     private final MenuImageService menuImageService;
 
-    @PostMapping
-    @Operation(summary = "[사장] 메뉴판 이미지 등록", description = "S3에 업로드된 메뉴판 이미지 key를 등록합니다.")
-    public ApiResult<List<IdResponse>> registerMenuImages(
-            @RequestBody MenuImageRequest request,
-            Authentication authentication
-    ) {
-        Long userId = Long.parseLong(authentication.getName());
-        return ApiResult.success(menuImageService.registerMenuImages(userId, request.keys()));
-    }
+//    @PostMapping
+//    @Operation(summary = "[사장] 메뉴판 이미지 등록", description = "S3에 업로드된 메뉴판 이미지 key를 등록합니다.")
+//    public ApiResult<List<IdResponse>> registerMenuImages(
+//            @RequestBody MenuImageRequest request,
+//            Authentication authentication
+//    ) {
+//        Long userId = Long.parseLong(authentication.getName());
+//        return ApiResult.success(menuImageService.registerMenuImages(userId, request.keys()));
+//    }
 
     @GetMapping
     @Operation(summary = "[사장] 내 메뉴판 이미지 조회", description = "내 가게의 메뉴판 이미지를 조회합니다.")
