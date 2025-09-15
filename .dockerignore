@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Gradle
+.gradle
+build/
+gradle/
+gradlew
+gradlew.bat
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Secrets (best practice)
+.env
+application-local.yaml
+application-dev.yaml
+applicatipn.yaml
