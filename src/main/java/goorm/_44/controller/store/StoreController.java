@@ -5,6 +5,7 @@ import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.IdResponse;
 import goorm._44.dto.response.StoreResponse;
+import goorm._44.dto.response.VisitTrendResponse;
 import goorm._44.service.store.InsightService;
 import goorm._44.service.store.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/stores")
