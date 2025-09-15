@@ -91,7 +91,7 @@ public class StampController {
     }
 
 
-    @GetMapping("me/stores/{storeId}")
+    @GetMapping("/me/stores/{storeId}")
     @Operation(summary = "[단골] 단골 가게 상세 조회", description = "단골 가게 상세 정보와 최신 공지를 조회합니다.")
     public ApiResult<StoreDetailResponse> getStoreDetail(
             @PathVariable Long storeId,
