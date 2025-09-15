@@ -27,7 +27,7 @@ RUN ./gradlew build -x test
 # =================================================================
 # STAGE 2: Final Stage - 빌드된 JAR 파일만으로 최종 이미지를 만듭니다.
 # =================================================================
-FROM openjdk:21-jre-slim
+FROM openjdk:21-jdk-slim
 
 # 작업 디렉토리 설정
 WORKDIR /app
