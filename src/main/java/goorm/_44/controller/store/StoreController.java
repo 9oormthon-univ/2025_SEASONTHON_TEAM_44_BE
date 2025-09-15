@@ -62,7 +62,7 @@ public class StoreController {
     ) {
         Long ownerUserId = Long.parseLong(authentication.getName());
         String insightResult = insightService.getInsight(ownerUserId);
-        return ApiResult.success("insight");
+        return ApiResult.success(insightResult);
     }
 
 
