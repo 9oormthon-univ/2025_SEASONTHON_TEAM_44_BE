@@ -93,6 +93,10 @@ public class StoreService {
                 ? null
                 : presignService.viewUrl(store.getImageKey(), null).url();
 
+        List<String> menuImageUrls = store.getMenuImages().stream()
+                .map(mi -> presignService.viewUrl(mi.getImageKey(), null).url())
+                .toList();
+
         // 전화번호 포맷 (010-XXXX-XXXX)
         String formattedPhone = formatPhone(store.getPhone());
 
@@ -110,7 +114,8 @@ public class StoreService {
                 store.getDetailAddress(),
                 openTime,
                 closeTime,
-                store.getCategory()
+                store.getCategory(),
+                menuImageUrls
         );
     }
 
