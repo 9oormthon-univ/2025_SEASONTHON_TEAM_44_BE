@@ -59,28 +59,20 @@ jobs:
         passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
         script: |
           IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/9oorm-server
+          CONTAINER_NAME=9oorm-server
           
           # 1. 새 버전 이미지 pull
           docker pull $IMAGE_NAME:latest
           
-          # 2. 기존 컨테이너가 있는지 확인
-          OLD_CONTAINER_ID=$(docker ps -q --filter "name=9oorm-server")
+          # 2. 기존 컨테이너 중지 및 삭제 (있다면)
+          docker stop $CONTAINER_NAME || true
+          docker rm $CONTAINER_NAME || true
           
-          # 3. 새 컨테이너를 다른 이름으로 실행 (포트 및 볼륨 마운트 수정)
-          docker run -d --name 9oorm-server-new -p 8080:8080 \
+          # 3. 새 컨테이너 실행
+          docker run -d --name $CONTAINER_NAME -p 8080:8080 \
             --network 9oorm-network \
-            -v /home/halim7753/application.yaml:/app/application.yaml \
+            -v /home/halim7.yaml:/app/application.yaml \
             $IMAGE_NAME:latest
-            
-          # 4. 기존 컨테이너가 있었다면 중지 및 삭제
-          if [ ! -z "$OLD_CONTAINER_ID" ]; then
-            sleep 10
-            docker stop $OLD_CONTAINER_ID
-            docker rm $OLD_CONTAINER_ID
-          fi
           
-          # 5. 새 컨테이너 이름을 원래 이름으로 변경
-          docker rename 9oorm-server-new 9oorm-server
-          
-          # 6. 사용하지 않는 이미지 정리
+          # 4. 사용하지 않는 이미지 정리
           docker image prune -f
