@@ -15,7 +15,6 @@ Thumbs.db
 *.log
 
 # Secrets (best practice)
-.env
 application-local.yaml
 application-dev.yaml
 applicatipn.yaml
