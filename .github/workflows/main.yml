@@ -71,7 +71,7 @@ jobs:
           # 3. 새 컨테이너 실행
           docker run -d --name $CONTAINER_NAME -p 8080:8080 \
             --network 9oorm-network \
-            -v /home/halim7.yaml:/app/application.yaml \
+            -v /home/halim7753/application.yaml:/app/application.yaml \
             $IMAGE_NAME:latest
           
           # 4. 사용하지 않는 이미지 정리
