@@ -43,7 +43,19 @@ public class StampController {
         );
     }
 
+    @GetMapping("/me/visit-trends/daily")
+    @Operation(summary = "[사장] 일간 방문·적립 추이 조회", description = "사용자의 가게 일간 방문·적립 추이를 조회합니다.")
+    public ApiResult<List<VisitTrendResponse.TimeSegment>> getDailyVisitTrends(Authentication auth) {
+        Long userId = Long.parseLong(auth.getName());
+        return ApiResult.success(stampService.getDailyVisitStats(userId));
+    }
 
+    @GetMapping("/me/visit-trends/weekly")
+    @Operation(summary = "[사장] 주간 방문·적립 추이 조회", description = "사용자의 가게 주간 방문·적립 추이를 조회합니다.")
+    public ApiResult<List<VisitTrendResponse.DailyStat>> getWeeklyVisitTrends(Authentication auth) {
+        Long userId = Long.parseLong(auth.getName());
+        return ApiResult.success(stampService.getWeeklyVisitStats(userId));
+    }
 
 
     @GetMapping("/me/main")
@@ -70,7 +82,7 @@ public class StampController {
 
 
     @GetMapping("/recommend")
-    @Operation(summary = "추천 가게 조회", description = "가장 자주 찾는 카테고리를 기반으로 가게를 추천합니다.")
+    @Operation(summary = "[단골] 추천 가게 조회", description = "가장 자주 찾는 카테고리를 기반으로 가게를 추천합니다.")
     public ApiResult<RecommendResponse> recommendStore(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         RecommendResponse response = stampService.recommendCategoryStore(userId);
@@ -79,7 +91,7 @@ public class StampController {
     }
 
 
-    @GetMapping("me/stores/{storeId}")
+    @GetMapping("/me/stores/{storeId}")
     @Operation(summary = "[단골] 단골 가게 상세 조회", description = "단골 가게 상세 정보와 최신 공지를 조회합니다.")
     public ApiResult<StoreDetailResponse> getStoreDetail(
             @PathVariable Long storeId,

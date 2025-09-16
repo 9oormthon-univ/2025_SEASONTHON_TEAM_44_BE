@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,6 +122,115 @@ public class StampService {
         );
         }
 
+
+    /**
+     * [사장] 일간 방문·적립 추이 조회
+     */
+    @Transactional(readOnly = true)
+    public VisitTrendResponse getVisitTrends(Long userId) {
+        User owner = validateOwner(userId);
+
+        Store store = storeRepository.findByUserId(userId).stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
+        return new VisitTrendResponse(
+                getDailyVisitStats(store),
+                getWeeklyVisitStats(store)
+        );
+    }
+
+
+    /**
+     * [사장] 주간 방문·적립 추이 조회
+     */
+    @Transactional(readOnly = true)
+    public List<VisitTrendResponse.TimeSegment> getDailyVisitStats(Long userId) {
+        User owner = validateOwner(userId);
+
+        Store store = storeRepository.findByUserId(userId).stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
+        return getDailyVisitStats(store);
+    }
+
+    @Transactional(readOnly = true)
+    public List<VisitTrendResponse.DailyStat> getWeeklyVisitStats(Long userId) {
+        User owner = validateOwner(userId);
+
+        Store store = storeRepository.findByUserId(userId).stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
+        return getWeeklyVisitStats(store);
+    }
+
+    /* 내부 헬퍼 */
+    private List<VisitTrendResponse.TimeSegment> getDailyVisitStats(Store store) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
+
+        List<VisitTrendResponse.TimeSegment> segments = new ArrayList<>();
+        int[][] ranges = {{0, 6}, {6, 12}, {12, 18}, {18, 24}};
+
+        for (int[] range : ranges) {
+            int startHour = range[0];
+            int endHour = range[1];
+
+            int total = 0;
+            int newUsers = 0;
+            int revisits = 0;
+
+            if (endHour <= now.getHour()) {
+                total = stampLogRepository.countDistinctUsersByStoreAndDateTimeRange(
+                        store.getId(), today, startHour, endHour,
+                        List.of(StampAction.VISIT, StampAction.REGISTER, StampAction.COUPON)
+                );
+                newUsers = stampLogRepository.countDistinctUsersByStoreAndDateTimeRange(
+                        store.getId(), today, startHour, endHour,
+                        List.of(StampAction.REGISTER)
+                );
+                revisits = stampLogRepository.countDistinctUsersByStoreAndDateTimeRange(
+                        store.getId(), today, startHour, endHour,
+                        List.of(StampAction.VISIT, StampAction.COUPON)
+                );
+            }
+
+            segments.add(new VisitTrendResponse.TimeSegment(
+                    startHour, endHour, total, newUsers, revisits
+            ));
+        }
+
+        return segments;
+    }
+
+    private List<VisitTrendResponse.DailyStat> getWeeklyVisitStats(Store store) {
+        LocalDate today = LocalDate.now();
+        List<VisitTrendResponse.DailyStat> stats = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = today.minusDays(i);
+
+            int total = stampLogRepository.countDistinctUsersByStoreAndDateAndActions(
+                    store.getId(), date,
+                    List.of(StampAction.VISIT, StampAction.REGISTER, StampAction.COUPON)
+            );
+            int newUsers = stampLogRepository.countDistinctUsersByStoreAndDateAndAction(
+                    store.getId(), date, StampAction.REGISTER
+            );
+            int revisits = stampLogRepository.countDistinctUsersByStoreAndDateAndActions(
+                    store.getId(), date,
+                    List.of(StampAction.VISIT, StampAction.COUPON)
+            );
+
+            stats.add(new VisitTrendResponse.DailyStat(date, total, newUsers, revisits));
+        }
+
+        return stats.stream()
+                .sorted(Comparator.comparing(VisitTrendResponse.DailyStat::date))
+                .toList();
+    }
 
 
     /**

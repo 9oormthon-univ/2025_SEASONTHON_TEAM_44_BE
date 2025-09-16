@@ -4,6 +4,7 @@ import goorm._44.common.exception.CustomException;
 import goorm._44.dto.request.StoreCreateRequest;
 import goorm._44.dto.response.DashboardResponse;
 import goorm._44.dto.response.StoreResponse;
+import goorm._44.dto.response.VisitTrendResponse;
 import goorm._44.entity.*;
 import goorm._44.enums.Role;
 import goorm._44.enums.StampAction;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 

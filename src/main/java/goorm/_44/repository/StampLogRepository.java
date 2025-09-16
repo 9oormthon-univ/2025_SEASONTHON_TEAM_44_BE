@@ -96,4 +96,23 @@ public interface StampLogRepository extends JpaRepository<StampLog, Long> {
             "AND DATE(s.updatedAt) = :date")
     int countReRegularsByDate(@Param("storeId") Long storeId, @Param("date") LocalDate date);
 
+
+
+    @Query("""
+        SELECT COUNT(DISTINCT sl.stamp.user.id)
+        FROM StampLog sl
+        WHERE sl.store.id = :storeId
+          AND DATE(sl.createdAt) = :date
+          AND HOUR(sl.createdAt) >= :startHour
+          AND HOUR(sl.createdAt) < :endHour
+          AND sl.action IN :actions
+    """)
+    int countDistinctUsersByStoreAndDateTimeRange(
+            @Param("storeId") Long storeId,
+            @Param("date") LocalDate date,
+            @Param("startHour") int startHour,
+            @Param("endHour") int endHour,
+            @Param("actions") List<StampAction> actions
+    );
+
 }
