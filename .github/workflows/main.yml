@@ -68,6 +68,7 @@ jobs:
           
           # 3. 새 컨테이너를 다른 이름으로 실행 (포트 및 볼륨 마운트 수정)
           docker run -d --name 9oorm-server-new -p 8080:8080 \
+            --network 9oorm-network \
             -v /home/halim7753/application.yaml:/app/application.yaml \
             $IMAGE_NAME:latest
             
