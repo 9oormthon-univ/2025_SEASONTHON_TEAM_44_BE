@@ -1,3 +1,6 @@
+<img width="2048" height="1152" alt="image" src="https://github.com/user-attachments/assets/139de1e6-0e32-4371-8c2e-789099d4d245" />
+
+
 # 다시온 Backend (TEAM 44)
 
 Java Spring Boot Gradle MySQL S3 Kakao OAuth GitHub Actions
