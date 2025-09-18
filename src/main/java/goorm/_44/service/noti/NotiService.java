@@ -131,6 +131,11 @@ public class NotiService {
         Noti noti = notiRepository.findById(notiId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTI_NOT_FOUND));
 
+        // 이미 읽은 공지인지 검사
+        if (notiReadRepository.existsByUserIdAndNotiId(userId, noti.getId())) {
+            throw new CustomException(ErrorCode.ALREADY_READ_NOTI);
+        }
+
         // 2. 공지 읽기
         NotiRead notiRead = NotiRead.builder()
                 .user(user)

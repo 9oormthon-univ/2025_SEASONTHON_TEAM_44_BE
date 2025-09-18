@@ -24,6 +24,7 @@ public enum ErrorCode {
 
     // 409 CONFLICT
     STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 가게가 있습니다."),
+    ALREADY_READ_NOTI(HttpStatus.CONFLICT, "이미 읽은 공지입니다."),
 
     // 500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
